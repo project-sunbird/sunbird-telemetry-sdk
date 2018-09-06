@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/telemetryV3Interface.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">core/</a> telemetryV3Interface.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.41% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>181/198</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">82.14% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>92/112</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">92.68% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>38/41</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">91.37% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>180/197</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">24×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">176×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">227×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">227×</span>
+<span class="cline-any cline-yes">227×</span>
+<span class="cline-any cline-yes">403×</span>
+<span class="cline-any cline-yes">403×</span>
+<span class="cline-any cline-yes">392×</span>
+<span class="cline-any cline-yes">1002×</span>
+<span class="cline-any cline-yes">1002×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">227×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * Telemetry V3 Library
+ * @author Manjunath Davanam &lt;manjunathd@ilimi.in&gt;
+ * @author Akash Gupta &lt;Akash.Gupta@tarento.com&gt; 
+ */
+&nbsp;
+// To support for node server environment 
+<span class="missing-if-branch" title="if path not taken" >I</span>if (typeof require === "function") {
+<span class="cstat-no" title="statement not covered" >    var Ajv = require('ajv')</span>
+}
+&nbsp;
+&nbsp;
+var libraryDispatcher = {
+    dispatch: function(event) {
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (typeof document != 'undefined') {
+            //To Support for external user who ever lisenting on this 'TelemetryEvent' event.
+            // IT  WORKS ONLY FOR CLIENT SIDE
+            document.dispatchEvent(new CustomEvent('TelemetryEvent', { detail: event }));
+        } else {
+<span class="cstat-no" title="statement not covered" >            console.info("Library dispatcher supports only for client side.");</span>
+        }
+    }
+};
+&nbsp;
+&nbsp;
+var Telemetry = (function() {
+    this.telemetry = <span class="fstat-no" title="function not covered" >function() {</span>};
+    var instance = <span class="fstat-no" title="function not covered" >function() {</span>};
+    var telemetryInstance = this;
+    this.telemetry.initialized = false;
+    this.telemetry.config = {};
+    this.telemetry._version = "3.0";
+    this.telemetry.fingerPrintId = undefined;
+    this.dispatcher = libraryDispatcher;
+    this._defaultValue = {
+            uid: "anonymous",
+            authtoken: "",
+            batchsize: 20,
+            host: "https://api.ekstep.in",
+            endpoint: "/data/v3/telemetry",
+            apislug: "/action",
+        },
+        this.telemetryEnvelop = {
+            "eid": "",
+            "ets": "",
+            "ver": "",
+            "mid": '',
+            "actor": {},
+            "context": {},
+            "object": {},
+            "tags": [],
+            "edata": ""
+        }
+    this._globalContext = {
+        "channel": 'in.ekstep',
+        "pdata": { id: "in.ekstep", ver: "1.0", pid: "" },
+        "env": "contentplayer",
+        "sid": "",
+        "did": "",
+        "cdata": [],
+        "rollup": {}
+    };
+    this.runningEnv = 'client';
+    this.enableValidation = false;
+    this._globalObject = {};
+    this.startData = [];
+    this.ajv = new Ajv({ schemas: telemetrySchema });
+&nbsp;
+    /**
+     * Which is used to initialize the telemetry event
+     * @param  {object} config - Configurations for the telemetry lib to initialize the service. " Example: config = { batchsize:10,host:"" } "
+     */
+    this.telemetry.initialize = function(config) {
+        instance.init(config);
+    }
+&nbsp;
+    /**
+     * Which is used to start and initialize the telemetry event. 
+     * If the telemetry is already initialzed then it will trigger only start event.
+     * @param  {object} config     [Telemetry lib configurations]
+     * @param  {string} contentId  [Content Identifier]
+     * @param  {string} contentVer [Content version]
+     * @param  {object} data       [Can have userAgent,device spec object]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.start = function(config, contentId, contentVer, data, options) {
+        data.duration = data.duration || (((new Date()).getTime()) * 0.001); // Converting duration miliSeconds to seconds
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (contentId &amp;&amp; contentVer) {
+            telemetryInstance._globalObject.id = contentId;
+            telemetryInstance._globalObject.ver = contentVer;
+        }
+&nbsp;
+        if (!Telemetry.initialized &amp;&amp; config) {
+            instance.init(config, contentId, contentVer)
+&nbsp;
+        }
+        instance.updateValues(options);
+        var startEventObj = instance.getEvent('START', data);
+        instance._dispatch(startEventObj)
+        telemetryInstance.startData.push(JSON.parse(JSON.stringify(startEventObj)));
+    }
+&nbsp;
+    /**
+     * Which is used to log the impression telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.impression = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('IMPRESSION', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the interact telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.interact = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('INTERACT', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the assess telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.assess = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('ASSESS', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the response telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.response = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('RESPONSE', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the interrupt telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.interrupt = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('INTERRUPT', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the feedback telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.feedback = function(data, options) {
+        var eksData = {
+            "rating": data.rating,
+            "comments": data.comments || ''
+        }
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('FEEDBACK', eksData));
+    }
+&nbsp;
+    /**
+     * Which is used to log the share telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.share = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('SHARE', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the audit telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.audit = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('AUDIT', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the error telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.error = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('ERROR', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the heartbeat telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.heartbeat = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('HEARTBEAT', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the log event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.log = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('LOG', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the search event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.search = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('SEARCH', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the metrics event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.metrics = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('METRICS', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the exdata event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.exdata = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('EXDATA', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the summary event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.summary = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('SUMMARY', data));
+    }
+&nbsp;
+    /**
+     * Which is used to log the end telemetry event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.end = function(data, options) {
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (telemetryInstance.startData.length) {
+            var startEventObj = telemetryInstance.startData.pop();
+            data.duration = ((new Date()).getTime() - startEventObj.ets) * 0.001; // Converting duration miliSeconds to seconds
+            instance.updateValues(options);
+            instance._dispatch(instance.getEvent('END', data));
+        } else {
+<span class="cstat-no" title="statement not covered" >            console.info("Please invoke start before invoking end event.")</span>
+        }
+    }
+&nbsp;
+    /**
+     * Which is used to know the whether telemetry is initialized or not. 
+     * @return {Boolean} 
+     */
+    this.telemetry.isInitialized = function() {
+        return Telemetry.initialized;
+    }
+&nbsp;
+    /**
+     * Which is used to reset the current context
+     * @param  {object} context [Context value]
+     */
+    this.telemetry.resetContext = function(context) {
+        telemetryInstance._currentContext = context || {};
+    }
+&nbsp;
+    /**
+     * Which is used to reset the current object value.
+     * @param  {object} object [Object value]
+     */
+    this.telemetry.resetObject = function(object) {
+            telemetryInstance._currentObject = object || <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
+        },
+&nbsp;
+        /**
+         * Which is used to reset the current actor value.
+         * @param  {object} object [Object value]
+         */
+        this.telemetry.resetActor = function(actor) {
+            telemetryInstance._currentActor = actor || <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
+        }
+&nbsp;
+&nbsp;
+    /**
+     * Which is used to reset the current actor value.
+     * @param  {object} object [Object value]
+     */
+    this.telemetry.resetTags = function(tags) {
+        telemetryInstance._currentTags = tags || <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
+    }
+&nbsp;
+    this.telemetry.syncEvents = <span class="fstat-no" title="function not covered" >function() {</span>
+<span class="cstat-no" title="statement not covered" >        if (typeof TelemetrySyncManager != 'undefined') {</span>
+<span class="cstat-no" title="statement not covered" >            TelemetrySyncManager.syncEvents();</span>
+        }
+    }
+&nbsp;
+    /**
+     * Which is used to initialize the telemetry in globally.
+     * @param  {object} config     [Telemetry configurations]
+     * @param  {string} contentId  [Identifier value]
+     * @param  {string} contentVer [Version]
+     * @param  {object} type       [object type]
+     */
+    instance.init = function(config, contentId, contentVer) {
+        if (Telemetry.initialized) {
+            console.log("Telemetry is already initialized..");
+            return;
+        }!config &amp;&amp; (config = {})
+        contentId &amp;&amp; (telemetryInstance._globalObject.id = contentId);
+        contentVer &amp;&amp; (telemetryInstance._globalObject.ver = contentVer);
+        config.runningEnv &amp;&amp; (telemetryInstance.runningEnv = config.runningEnv);
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof config.enableValidation !== 'undefined') {
+<span class="cstat-no" title="statement not covered" >            telemetryInstance.enableValidation = config.enableValidation;</span>
+        }
+        config.batchsize = config.batchsize ? (config.batchsize &lt; 10 ? 10 : (config.batchsize &gt; 1000 ? <span class="branch-0 cbranch-no" title="branch not covered" >1000 </span>: config.batchsize)) : _defaultValue.batchsize;
+        Telemetry.config = Object.assign(_defaultValue, config);
+        Telemetry.initialized = true;
+        telemetryInstance.dispatcher = Telemetry.config.dispatcher ? <span class="branch-0 cbranch-no" title="branch not covered" >Telemetry.config.dispatcher </span>: libraryDispatcher;
+        instance.updateConfigurations(config);
+        console.info("Telemetry is initialized.")
+    }
+&nbsp;
+    /**
+     * Which is used to dispatch a telemetry events.
+     * @param  {object} message [Telemetry event object]
+     */
+    instance._dispatch = function(message) {
+        message.mid = message.eid + ':' + CryptoJS.MD5(JSON.stringify(message)).toString();
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (telemetryInstance.enableValidation) {
+<span class="cstat-no" title="statement not covered" >            var validate = ajv.getSchema('http://api.ekstep.org/telemetry/' + message.eid.toLowerCase())</span>
+<span class="cstat-no" title="statement not covered" >            var valid = validate(message)</span>
+<span class="cstat-no" title="statement not covered" >            if (!valid) {</span>
+<span class="cstat-no" title="statement not covered" >                console.error('Invalid ' + message.eid + ' Event: ' + ajv.errorsText(validate.errors))</span>
+<span class="cstat-no" title="statement not covered" >                return</span>
+            }
+        }
+        if (telemetryInstance.runningEnv === 'client') {
+            if (!message.context.did) {
+                if (!Telemetry.fingerPrintId) {
+                    Telemetry.getFingerPrint(function(result, components) {
+                        message.context.did = result;
+                        Telemetry.fingerPrintId = result;
+                        dispatcher.dispatch(message);
+                    })
+                } else {
+                    message.context.did = Telemetry.fingerPrintId;
+                    dispatcher.dispatch(message);
+                }
+            } else {
+                dispatcher.dispatch(message);
+            }
+        } else {
+            dispatcher.dispatch(message);
+        }
+    }
+&nbsp;
+    /**
+     * Which is used to get the telemetry envelop data
+     * @param  {string} eventId [Name of the event]
+     * @param  {object} data    [Event data]
+     * @return {object}         [Telemetry envelop data]
+     */
+    instance.getEvent = function(eventId, data) {
+        telemetryInstance.telemetryEnvelop.eid = eventId;
+        telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime();
+        telemetryInstance.telemetryEnvelop.ver = Telemetry._version;
+        telemetryInstance.telemetryEnvelop.mid = '';
+        telemetryInstance.telemetryEnvelop.actor = Object.assign({}, { "id": Telemetry.config.uid || 'anonymous', "type": 'User' }, instance.getUpdatedValue('actor'));
+        telemetryInstance.telemetryEnvelop.context = Object.assign({}, instance.getGlobalContext(), instance.getUpdatedValue('context'));
+        telemetryInstance.telemetryEnvelop.object = Object.assign({}, instance.getGlobalObject(), instance.getUpdatedValue('object'));
+        telemetryInstance.telemetryEnvelop.tags = Object.assign([], Telemetry.config.tags, instance.getUpdatedValue('tags'));
+        telemetryInstance.telemetryEnvelop.edata = data;
+        return telemetryInstance.telemetryEnvelop;
+    }
+&nbsp;
+    /**
+     * Which is used to assing to globalObject and globalContext value from the telemetry configurations.
+     * @param  {object} config [Telemetry configurations]
+     */
+    instance.updateConfigurations = function(config) {
+        config.object &amp;&amp; (telemetryInstance._globalObject = config.object);
+        config.channel &amp;&amp; (telemetryInstance._globalContext.channel = config.channel);
+        config.env &amp;&amp; (telemetryInstance._globalContext.env = config.env);
+        config.rollup &amp;&amp; (telemetryInstance._globalContext.rollup = config.rollup);
+        config.sid &amp;&amp; (telemetryInstance._globalContext.sid = config.sid);
+        config.did &amp;&amp; (telemetryInstance._globalContext.did = config.did);
+        config.cdata &amp;&amp; (telemetryInstance._globalContext.cdata = config.cdata);
+        config.pdata &amp;&amp; (telemetryInstance._globalContext.pdata = config.pdata);
+&nbsp;
+&nbsp;
+    }
+&nbsp;
+    /**
+     * Which is used to get the current updated global context value.
+     * @return {object} 
+     */
+    instance.getGlobalContext = function() {
+        return telemetryInstance._globalContext;
+    }
+&nbsp;
+    /**
+     * Which is used to get the current global object value.
+     * @return {object} 
+     */
+    instance.getGlobalObject = function() {
+        return telemetryInstance._globalObject;
+    }
+&nbsp;
+    /**
+     * Which is used to update the both context and object vlaue.
+     * For any event explicitly context and object value can be passed.
+     * @param  {object} context [Context value object]
+     * @param  {object} object  [Object value]
+     */
+    instance.updateValues = function(options) {
+        if (options) {
+            options.context &amp;&amp; (telemetryInstance._currentContext = options.context);
+            options.object &amp;&amp; (telemetryInstance._currentObject = options.object);
+            options.actor &amp;&amp; (telemetryInstance._currentActor = options.actor);
+            options.tags &amp;&amp; (telemetryInstance._currentTags = options.tags);
+            options.runningEnv &amp;&amp; (telemetryInstance.runningEnv = options.runningEnv);
+        }
+    }
+&nbsp;
+    /**
+     * Which is used to get the value of 'context','actor','object'
+     * @param  {string} key [ Name of object which we is need to get ]
+     * @return {object}     
+     */
+    instance.getUpdatedValue = function(key) {
+        switch (key.toLowerCase()) {
+            case 'context':
+                return telemetryInstance._currentContext || {};
+<span class="cstat-no" title="statement not covered" >                break;</span>
+            case 'object':
+                return telemetryInstance._currentObject || {};
+<span class="cstat-no" title="statement not covered" >                break;</span>
+            case 'actor':
+                return telemetryInstance._currentActor || {};
+<span class="cstat-no" title="statement not covered" >                break;</span>
+            case 'tags':
+                return telemetryInstance._currentTags || [];
+<span class="cstat-no" title="statement not covered" >                break;</span>
+        }
+    }
+&nbsp;
+    /**
+     * Which is used to support for lower end deviecs.
+     * If any of the devices which is not supporting ECMAScript 6 version
+     */
+    instance.objectAssign = function() {
+        Object.assign = function(target) {
+            'use strict';
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (target == null) {
+<span class="cstat-no" title="statement not covered" >                throw new TypeError('Cannot convert undefined or null to object');</span>
+            }
+&nbsp;
+            target = Object(target);
+            for (var index = 1; index &lt; arguments.length; index++) {
+                var source = arguments[index];
+                if (source != null) {
+                    for (var key in source) {
+                        <span class="missing-if-branch" title="else path not taken" >E</span>if (Object.prototype.hasOwnProperty.call(source, key)) {
+                            target[key] = source[key];
+                        }
+                    }
+                }
+            }
+            return target;
+        }
+    }
+&nbsp;
+    this.telemetry.getFingerPrint = function(cb) {
+        new Fingerprint2().get(function(result, components) {
+            <span class="missing-if-branch" title="else path not taken" >E</span>if (cb) cb(result, components)
+        })
+    }
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (typeof Object.assign != 'function') {
+        instance.objectAssign();
+    }
+&nbsp;
+    return this.telemetry;
+})();
+&nbsp;
+/**
+ * Name space which is being fallowed
+ * @type {[type]}
+ */
+&nbsp;
+EkTelemetry = $t = Telemetry;
+&nbsp;
+&nbsp;
+&nbsp;
+/**
+ * To support for the node backEnd, So any node developer can import this telemetry lib.
+ */
+<span class="missing-if-branch" title="if path not taken" >I</span>if (typeof module != 'undefined') {
+<span class="cstat-no" title="statement not covered" >    module.exports = Telemetry;</span>
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Sep 04 2018 18:22:24 GMT+0530 (IST)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

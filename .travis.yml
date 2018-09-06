@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+    - "6.1"
+sudo: required
+addons:
+  chrome: stable
+before_script:
+    - npm install
+    - npm run build
+    - npm run test
+    - npm run codecov
