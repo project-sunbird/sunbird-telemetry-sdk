@@ -41,7 +41,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://manjudr@github.com/manjudr/telemetry-lib.git"
+        "url": "git+https://github.com/project-sunbird/sunbird-telemetry-sdk.git"
     },
     "keywords": [
         "telemetry",
@@ -59,9 +59,9 @@
     "author": "Manjunath Davanam <manjunathd@ilimi.in>",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/manjudr/telemetry-lib/issues"
+        "url": "https://github.com/project-sunbird/sunbird-telemetry-sdk/issues"
     },
-    "homepage": "https://github.com/manjudr/telemetry-lib#readme",
+    "homepage": "https://github.com/project-sunbird/sunbird-telemetry-sdk/tree/master/js#readme",
     "dependencies": {
         "grunt-karma": "^0.12.2",
         "karma": "^3.0.0"
