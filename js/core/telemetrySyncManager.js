@@ -1,6 +1,7 @@
 /**
  * This is responsible for syncing of Telemetry
  * @class TelemetrySyncManager
+ * @author Manjunath Davanam <manjunathd@ilimi.in>
  * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
  */
 
@@ -18,7 +19,7 @@ var TelemetrySyncManager = {
     },
     sendTelemetry: function(event) {
         var telemetryEvent = event.detail;
-        console.log("Telemetry Events ", telemetryEvent);
+        console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         var instance = TelemetrySyncManager;
         instance._teleData.push(Object.assign({}, telemetryEvent));
         if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
