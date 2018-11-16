@@ -1,12 +1,13 @@
 {
     "name": "@project-sunbird/telemetry-sdk",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "Telemetry Service javascript library helps to generate the telemetry events.",
     "directories": {
         "example": "example",
         "test": "test"
     },
     "devDependencies": {
+        "ajv": "6.5.3",
         "rimraf": "2.6.2",
         "cpy-cli": "2.0.0",
         "grunt": "~0.4.5",
