@@ -1866,6 +1866,7 @@ var CryptoJS = CryptoJS || function(s, p) {
 /**
  * This is responsible for syncing of Telemetry
  * @class TelemetrySyncManager
+ * @author Manjunath Davanam <manjunathd@ilimi.in>
  * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
  */
 
@@ -1882,8 +1883,8 @@ var TelemetrySyncManager = {
         document.addEventListener('TelemetryEvent', this.sendTelemetry);
     },
     sendTelemetry: function(event) {
-        var telemetryEvent = event.detail;
-        console.log("Telemetry Events ", telemetryEvent);
+        var telemetryEvent = event.detail.detail;
+        console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         var instance = TelemetrySyncManager;
         instance._teleData.push(Object.assign({}, telemetryEvent));
         if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
@@ -1947,7 +1948,13 @@ var libraryDispatcher = {
         if (typeof document != 'undefined') {
             //To Support for external user who ever lisenting on this 'TelemetryEvent' event.
             // IT  WORKS ONLY FOR CLIENT SIDE
-            document.dispatchEvent(new CustomEvent('TelemetryEvent', { detail: event }));
+            // document.dispatchEvent(new CustomEvent('TelemetryEvent', { detail: event }));
+
+            const customEvent = document.createEvent("CustomEvent");            
+            customEvent.initCustomEvent('TelemetryEvent',false, false, {
+                detail: event,
+            });            
+            document.dispatchEvent(customEvent);
         } else {
             console.info("Library dispatcher supports only for client side.");
         }

@@ -1,12 +1,13 @@
 {
     "name": "@project-sunbird/telemetry-sdk",
-    "version": "0.0.4",
+    "version": "0.0.9",
     "description": "Telemetry Service javascript library helps to generate the telemetry events.",
     "directories": {
         "example": "example",
         "test": "test"
     },
     "devDependencies": {
+        "ajv": "6.5.3",
         "rimraf": "2.6.2",
         "cpy-cli": "2.0.0",
         "grunt": "~0.4.5",
@@ -29,15 +30,20 @@
         "karma-mocha-reporter": "2.2.5",
         "karma-jasmine": "1.1.2",
         "jasmine-core": "3.2.1",
-        "jquery": "3.3.1"
+        "jquery": "3.3.1",
+        "codecov": "3.0.4",
+        "karma-coverage": "1.1.2"
     },
     "scripts": {
+        "test": "karma start karma.renderer.config.js",
+        "codecov": "codecov",
         "test-sdk": "grunt renderer-telemetryV3",
-        "build": "node_modules/.bin/rimraf ./dist && gulp build-telemetry-schema && grunt build-telemetry-lib && node_modules/.bin/cpy package.json ./dist && node_modules/.bin/cpy README.md ./dist"
+        "build": "node_modules/.bin/rimraf ./dist && gulp build-telemetry-schema && grunt build-telemetry-lib && node_modules/.bin/cpy package.json ./dist && node_modules/.bin/cpy README.md ./dist",
+        "build-windows": ".\\node_modules\\.bin/rimraf .\\dist && gulp build-telemetry-schema && grunt build-telemetry-lib && .\\node_modules\\.bin\\cpy package.json .\\dist && .\\node_modules\\.bin\\cpy README.md .\\dist"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://manjudr@github.com/manjudr/telemetry-lib.git"
+        "url": "git+https://github.com/project-sunbird/sunbird-telemetry-sdk.git"
     },
     "keywords": [
         "telemetry",
@@ -55,9 +61,9 @@
     "author": "Manjunath Davanam <manjunathd@ilimi.in>",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/manjudr/telemetry-lib/issues"
+        "url": "https://github.com/project-sunbird/sunbird-telemetry-sdk/issues"
     },
-    "homepage": "https://github.com/manjudr/telemetry-lib#readme",
+    "homepage": "https://github.com/project-sunbird/sunbird-telemetry-sdk/tree/master/js#readme",
     "dependencies": {
         "grunt-karma": "^0.12.2",
         "karma": "^3.0.0"

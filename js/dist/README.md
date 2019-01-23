@@ -1,5 +1,7 @@
 
  ![](https://travis-ci.org/manjudr/telemetry-lib.svg?branch=master)
+ [![codecov](https://codecov.io/gh/manjudr/telemetry-lib/branch/master/graph/badge.svg)](https://codecov.io/gh/manjudr/telemetry-lib)
+
 
 
 ## Need 
@@ -888,7 +890,26 @@ let data = { // Required
 ## ChangeLogs
 
   ******  ******
- **In progress**
+**[0.0.1](https://github.com/manjudr/telemetry-lib/releases/tag/v1.0.0)**
+ 
+  * Initial version of the telemetry-sdk [npm](https://www.npmjs.com/package/@project-sunbird/telemetry-sdk)
+
+**[0.0.2](https://github.com/manjudr/telemetry-lib/releases/tag/v1.0.0)**
+ 
+  * Bug fixes
+
+**[0.0.3](https://github.com/manjudr/telemetry-lib/releases/tag/v1.0.1)**
+
+  * Name space changes in the code 
+  * Removed `EkTelemetry` keyword in the code and provided a backward compatibility
+
+**[0.0.4](https://github.com/manjudr/telemetry-lib/releases/tag/v1.0.2)**
+
+  * Bug fixes - Duration issue fix in both START and END Event (Converting millisecond to seconds)
+  * Test case setup and improved code coverage
+  * Travis integration     
+
+
   
 
     

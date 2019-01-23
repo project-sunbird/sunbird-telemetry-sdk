@@ -18,7 +18,7 @@ var TelemetrySyncManager = {
         document.addEventListener('TelemetryEvent', this.sendTelemetry);
     },
     sendTelemetry: function(event) {
-        var telemetryEvent = event.detail;
+        var telemetryEvent = event.detail.detail;
         console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         var instance = TelemetrySyncManager;
         instance._teleData.push(Object.assign({}, telemetryEvent));
