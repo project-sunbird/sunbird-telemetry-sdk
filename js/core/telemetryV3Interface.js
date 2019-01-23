@@ -15,7 +15,13 @@ var libraryDispatcher = {
         if (typeof document != 'undefined') {
             //To Support for external user who ever lisenting on this 'TelemetryEvent' event.
             // IT  WORKS ONLY FOR CLIENT SIDE
-            document.dispatchEvent(new CustomEvent('TelemetryEvent', { detail: event }));
+            // document.dispatchEvent(new CustomEvent('TelemetryEvent', { detail: event }));
+
+            const customEvent = document.createEvent("CustomEvent");            
+            customEvent.initCustomEvent('TelemetryEvent',false, false, {
+                detail: event,
+            });            
+            document.dispatchEvent(customEvent);
         } else {
             console.info("Library dispatcher supports only for client side.");
         }
