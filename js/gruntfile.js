@@ -19,6 +19,7 @@ module.exports = function(grunt) {
                     './schema/telemetry-spec.js',
                     './libs/detectClient.js',
                     './libs/md5.js',
+                    './libs/ua-parser.min.js',
                     './libs/fingerprint2.min.js',
                     './core/telemetrySyncManager.js',
                     './core/telemetryV3Interface.js'
