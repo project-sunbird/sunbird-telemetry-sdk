@@ -543,7 +543,7 @@ var Telemetry = (function() {
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        new Fingerprint2(options).get(function (result, components) {
+        Fingerprint2.getV18(options, function (result, components) {
             if (cb) cb(result, components)
         })
     }
