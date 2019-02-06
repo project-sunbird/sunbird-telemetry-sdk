@@ -532,18 +532,22 @@ var Telemetry = (function() {
             'doNotTrack': true,
             // uses js fonts already
             'fontsFlash': true,
+            'canvas': true,
             'screenResolution': true,
             'availableScreenResolution': true,
-            'canvas': true,
             'touchSupport': true,
             'plugins': true,
+            'webgl': true,
+            'audio': true,
+            'language': true,
+            'deviceMemory': true
         },
         NOT_AVAILABLE: 'not available',
         ERROR: 'error',
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        Fingerprint2.getV18(options, function (result, components) {
+        Fingerprint2.getV18(FPoptions, function (result, components) {
             if (cb) cb(result, components)
         })
     }
