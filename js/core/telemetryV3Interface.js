@@ -492,7 +492,7 @@ var Telemetry = (function() {
             return target;
         }
     }
-    var options = {
+    var FPoptions = {
         preprocessor: function (key, value) {
             if (key == "userAgent") {
                 var parser = new UAParser(value); // https://github.com/faisalman/ua-parser-js
