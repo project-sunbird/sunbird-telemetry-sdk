@@ -2255,7 +2255,8 @@ var Telemetry = (function() {
      */
     instance.getEvent = function(eventId, data) {
         telemetryInstance.telemetryEnvelop.eid = eventId;
-        telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime();
+        telemetryInstance.telemetryEnvelop.ets = data.ets || (new Date()).getTime();
+        data.ets = undefined
         telemetryInstance.telemetryEnvelop.ver = Telemetry._version;
         telemetryInstance.telemetryEnvelop.mid = '';
         telemetryInstance.telemetryEnvelop.actor = Object.assign({}, { "id": Telemetry.config.uid || 'anonymous', "type": 'User' }, instance.getUpdatedValue('actor'));
@@ -2373,6 +2374,9 @@ var Telemetry = (function() {
         },
         audio: {
             timeout: 1000,
+            // On iOS 11, audio context can only be used in response to user interaction.
+            // We require users to explicitly enable audio fingerprinting on iOS 11.
+            // See https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
             excludeIOS11: true
         },
         fonts: {
@@ -2382,6 +2386,7 @@ var Telemetry = (function() {
             extendedJsFonts: false
         },
         screen: {
+            // To ensure consistent fingerprints when users rotate their mobile devices
             detectScreenOrientation: true
         },
         plugins: {

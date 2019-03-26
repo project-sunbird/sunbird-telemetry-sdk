@@ -385,7 +385,8 @@ var Telemetry = (function() {
      */
     instance.getEvent = function(eventId, data) {
         telemetryInstance.telemetryEnvelop.eid = eventId;
-        telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime();
+        telemetryInstance.telemetryEnvelop.ets = data.ets || (new Date()).getTime();
+        data.ets = undefined
         telemetryInstance.telemetryEnvelop.ver = Telemetry._version;
         telemetryInstance.telemetryEnvelop.mid = '';
         telemetryInstance.telemetryEnvelop.actor = Object.assign({}, { "id": Telemetry.config.uid || 'anonymous', "type": 'User' }, instance.getUpdatedValue('actor'));
