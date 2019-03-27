@@ -319,8 +319,8 @@ var Telemetry = (function() {
 
     var calculateTsDifference = function (tsObj) {
         var tsDiff = 0;
-		if (tsObj && tsObj.serverEts) {
-			var serverTime = new Date(tsObj.serverEts.slice(0, -1));
+		if (tsObj && tsObj.serverTime) {
+			var serverTime = tsObj.serverTime;
 			var localTime = tsObj.localTime;
 			tsDiff = Math.round((serverTime.getTime() - localTime.getTime()));
 		}
@@ -347,7 +347,7 @@ var Telemetry = (function() {
         }
         config.batchsize = config.batchsize ? (config.batchsize < 10 ? 10 : (config.batchsize > 1000 ? 1000 : config.batchsize)) : _defaultValue.batchsize;
         Telemetry.config = Object.assign(_defaultValue, config);
-        Telemetry.config.tsDiff = calculateTsDifference(Telemetry.config.tsData);
+        Telemetry.config.tsDiff = calculateTsDifference(Telemetry.config.timeStampData);
         Telemetry.initialized = true;
         telemetryInstance.dispatcher = Telemetry.config.dispatcher ? Telemetry.config.dispatcher : libraryDispatcher;
         instance.updateConfigurations(config);
