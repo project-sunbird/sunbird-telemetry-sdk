@@ -563,5 +563,37 @@ describe("Telemetry tests", function() {
             telemetryObj.initialize(config);
             expect(telemetryObj.initialize).toHaveBeenCalled();
         })
+        it("It should calculate and add timestamp difference to config when valid timestamp object is present", function() {
+            var localTime = new Date();
+            localTime.setSeconds(localTime.getSeconds()+10);
+            EkTelemetry.initialized = false;
+            spyOn(telemetryObj, 'initialize').and.callThrough();
+            module = 'undefined'
+            console.log("Module", module)
+            config.pdata = { "id": "in.ekstep", "ver": "1.0", "pid": "" }
+            config.runningEnv = 'client';
+            config.batchsize = 9;
+            config.uid = '343242';
+            config.did = '4335345435'
+            config.channel = 'in.ekstep.'
+            config.timeStampData = {serverTime: new Date(),localTime: localTime}
+            telemetryObj.initialize(config);
+            expect(EkTelemetry.config.tsDiff).not.toEqual(0)
+        })
+        it("It should consider 0 as timestamp difference when timestamp object is not present", function() {           
+            EkTelemetry.initialized = false;
+            spyOn(telemetryObj, 'initialize').and.callThrough();
+            module = 'undefined'
+            console.log("Module", module)
+            config.pdata = { "id": "in.ekstep", "ver": "1.0", "pid": "" }
+            config.runningEnv = 'client';
+            config.batchsize = 9;
+            config.uid = '343242';
+            config.did = '4335345435'
+            config.channel = 'in.ekstep.'
+            config.timeStampData = undefined
+            telemetryObj.initialize(config);
+            expect(EkTelemetry.config.tsDiff).toEqual(0)
+        })
     })
 });

@@ -317,6 +317,16 @@ var Telemetry = (function() {
         }
     }
 
+    var calculateTsDifference = function (tsObj) {
+        var tsDiff = 0;
+		if (tsObj && tsObj.serverTime) {
+			var serverTime = tsObj.serverTime;
+			var localTime = tsObj.localTime;
+			tsDiff = Math.round((serverTime.getTime() - localTime.getTime()));
+		}
+		return tsDiff;
+	}
+
     /**
      * Which is used to initialize the telemetry in globally.
      * @param  {object} config     [Telemetry configurations]
@@ -337,6 +347,7 @@ var Telemetry = (function() {
         }
         config.batchsize = config.batchsize ? (config.batchsize < 10 ? 10 : (config.batchsize > 1000 ? 1000 : config.batchsize)) : _defaultValue.batchsize;
         Telemetry.config = Object.assign(_defaultValue, config);
+        Telemetry.config.tsDiff = calculateTsDifference(Telemetry.config.timeStampData);
         Telemetry.initialized = true;
         telemetryInstance.dispatcher = Telemetry.config.dispatcher ? Telemetry.config.dispatcher : libraryDispatcher;
         instance.updateConfigurations(config);
@@ -385,7 +396,7 @@ var Telemetry = (function() {
      */
     instance.getEvent = function(eventId, data) {
         telemetryInstance.telemetryEnvelop.eid = eventId;
-        telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime();
+        telemetryInstance.telemetryEnvelop.ets = new Number(new Date().getTime()) + Telemetry.config.tsDiff;
         telemetryInstance.telemetryEnvelop.ver = Telemetry._version;
         telemetryInstance.telemetryEnvelop.mid = '';
         telemetryInstance.telemetryEnvelop.actor = Object.assign({}, { "id": Telemetry.config.uid || 'anonymous', "type": 'User' }, instance.getUpdatedValue('actor'));
