@@ -362,18 +362,35 @@ var Telemetry = (function() {
                 if (!Telemetry.fingerPrintId) {
                     Telemetry.getFingerPrint(function(result, components) {
                         message.context.did = result;
+                        message.actor.id = instance.getActorId(message.actor.id, result);
                         Telemetry.fingerPrintId = result;
                         dispatcher.dispatch(message);
                     })
                 } else {
                     message.context.did = Telemetry.fingerPrintId;
+                    message.actor.id = instance.getActorId(message.actor.id, Telemetry.fingerPrintId);
                     dispatcher.dispatch(message);
                 }
             } else {
+                message.actor.id = instance.getActorId(message.actor.id, message.context.did);
                 dispatcher.dispatch(message);
             }
         } else {
             dispatcher.dispatch(message);
+        }
+    }
+
+    /**
+     * Which is used to get set Actor id as device id if actor id is 'anonymous'
+     * @param  {string} actorId 
+     * @param  {string} deviceId    [DeviceId]
+     * @return {string} [actor id based on value of the actor came from input]
+     */
+    instance.getActorId = function (actorId,deviceId) {
+        if(!actorId || actorId === 'anonymous'){
+            return deviceId;
+        }else{
+            return actorId
         }
     }
 
@@ -385,7 +402,8 @@ var Telemetry = (function() {
      */
     instance.getEvent = function(eventId, data) {
         telemetryInstance.telemetryEnvelop.eid = eventId;
-        telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime();
+        // timeDiff (in sec) is diff of server date and local date 
+        telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime() + ((Telemetry.config.timeDiff*1000) || 0);
         telemetryInstance.telemetryEnvelop.ver = Telemetry._version;
         telemetryInstance.telemetryEnvelop.mid = '';
         telemetryInstance.telemetryEnvelop.actor = Object.assign({}, { "id": Telemetry.config.uid || 'anonymous', "type": 'User' }, instance.getUpdatedValue('actor'));

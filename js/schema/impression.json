@@ -48,6 +48,10 @@
               "$id": "http://api.ekstep.org/telemetry/edata/uri",
               "type": "string"
             },
+            "duration": {
+              "$id": "http://api.ekstep.org/telemetry/edata/duration",
+              "type": "number"
+            },
             "visits": {
               "$id": "http://api.ekstep.org/telemetry/edata/visits",
               "type": "array",
