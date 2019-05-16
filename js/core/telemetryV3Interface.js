@@ -128,12 +128,9 @@ var Telemetry = (function() {
     this.telemetry.assess = function(data, options) {
         instance.updateValues(options);
         assessEvent = instance.getEvent('ASSESS', data);
-        // This code will replace current version with the new version number, if present in the data.
-        if (data.item && data.item.eventVer) {
-            assessEvent.ver = data.item.eventVer;
-            delete assessEvent.edata.item.eventVer;
-        }     
-        instance._dispatch(assessEvent);
+        // This code will replace current version with the new version number, if present in options.
+        if (options && options.eventVer) assessEvent.ver = options.eventVer;
+        instance._dispatch(assessEvent);   
     }
 
     /**
