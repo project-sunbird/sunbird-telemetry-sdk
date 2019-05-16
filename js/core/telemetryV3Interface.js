@@ -127,7 +127,13 @@ var Telemetry = (function() {
      */
     this.telemetry.assess = function(data, options) {
         instance.updateValues(options);
-        instance._dispatch(instance.getEvent('ASSESS', data));
+        assessEvent = instance.getEvent('ASSESS', data);
+        // This code will replace the default version, only if it has one. 
+        if (data.item && data.item.eventVer) {
+            assessEvent.ver = data.item.eventVer;
+            delete assessEvent.edata.item.eventVer;
+        }     
+        instance._dispatch(assessEvent);
     }
 
     /**
