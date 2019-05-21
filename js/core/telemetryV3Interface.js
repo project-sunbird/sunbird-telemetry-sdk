@@ -338,7 +338,7 @@ var Telemetry = (function() {
         if (typeof config.enableValidation !== 'undefined') {
             telemetryInstance.enableValidation = config.enableValidation;
         }
-        config.batchsize = config.batchsize ? (config.batchsize < 10 ? 10 : (config.batchsize > 1000 ? 1000 : config.batchsize)) : _defaultValue.batchsize;
+        config.batchsize = config.batchsize ? (config.batchsize > 1000 ? 1000 : config.batchsize) : _defaultValue.batchsize;
         Telemetry.config = Object.assign(_defaultValue, config);
         Telemetry.initialized = true;
         telemetryInstance.dispatcher = Telemetry.config.dispatcher ? Telemetry.config.dispatcher : libraryDispatcher;
