@@ -33,6 +33,9 @@ var TelemetrySyncManager = {
         var Telemetry = EkTelemetry || Telemetry;
         var instance = TelemetrySyncManager;
         var telemetryData = instance._teleData.splice(0, Telemetry.config.batchsize);
+        if(!telemetryData.length){
+            return;
+        }
         var telemetryObj = {
             "id": "ekstep.telemetry",
             "ver": Telemetry._version,
@@ -49,6 +52,9 @@ var TelemetrySyncManager = {
         jQuery.ajax({
             url: fullPath,
             type: "POST",
+            params: {
+                msgid: CryptoJS.MD5(JSON.stringify(telemetryObj)).toString(),
+            },
             headers: headersParam,
             data: JSON.stringify(telemetryObj)
         }).done(function(resp) {
