@@ -1823,6 +1823,10 @@ var TelemetrySyncManager = {
         var telemetryEvent = event.detail;
         console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         var instance = TelemetrySyncManager;
+        const dupEvent = instance._teleData.find(event => telemetryEvent.mid === event.mid)
+        if(dupEvent){
+            return;
+        }
         instance._teleData.push(Object.assign({}, telemetryEvent));
         if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
             TelemetrySyncManager.syncEvents();
