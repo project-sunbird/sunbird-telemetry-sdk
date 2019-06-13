@@ -13,18 +13,30 @@ var TelemetrySyncManager = {
      * @memberof TelemetryPlugin
      */
     _teleData: [],
+    _batchData: [],
     init: function() {
         var instance = this;
         document.addEventListener('TelemetryEvent', this.sendTelemetry);
     },
     sendTelemetry: function(event) {
         var telemetryEvent = event.detail;
-        console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         var instance = TelemetrySyncManager;
-        const dupEvent = instance._teleData.find(event => telemetryEvent.mid === event.mid)
+        var dupEvent = false; 
+        for (var index = 0; index < instance._teleData.length; index++) {
+            if(telemetryEvent.mid === instance._teleData[index].mid) {
+                dupEvent = true;
+            }
+        }
+        for (var index = 0; index < instance._batchData.length; index++) {
+            if(telemetryEvent.mid === instance._batchData[index].mid) {
+                dupEvent = true;
+            }
+        }
         if(dupEvent){
+            console.log('event rejected, reason: duplicate');
             return;
         }
+        console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         instance._teleData.push(Object.assign({}, telemetryEvent));
         if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
             TelemetrySyncManager.syncEvents();
@@ -36,15 +48,18 @@ var TelemetrySyncManager = {
     syncEvents: function() {
         var Telemetry = EkTelemetry || Telemetry;
         var instance = TelemetrySyncManager;
-        var telemetryData = instance._teleData.splice(0, Telemetry.config.batchsize);
-        if(!telemetryData.length){
+        instance._batchData = instance._teleData.splice(0, Telemetry.config.batchsize);
+        if(!instance._batchData.length){
             return;
         }
         var telemetryObj = {
             "id": "ekstep.telemetry",
             "ver": Telemetry._version,
+            "params": {
+                "msgid": CryptoJS.MD5(JSON.stringify(telemetryObj)).toString(),
+            },
             "ets": (new Date()).getTime(),
-            "events": telemetryData
+            "events": instance._batchData
         };
         var headersParam = {};
         if ('undefined' != typeof Telemetry.config.authtoken)
@@ -56,15 +71,12 @@ var TelemetrySyncManager = {
         jQuery.ajax({
             url: fullPath,
             type: "POST",
-            params: {
-                msgid: CryptoJS.MD5(JSON.stringify(telemetryObj)).toString(),
-            },
             headers: headersParam,
             data: JSON.stringify(telemetryObj)
         }).done(function(resp) {
             console.log("Telemetry API success", resp);
         }).fail(function(error, textStatus, errorThrown) {
-            instance.updateEventStack(telemetryData);
+            instance.updateEventStack(instance._batchData);
             if (error.status == 403) {
                 console.error("Authentication error: ", error);
             } else {
