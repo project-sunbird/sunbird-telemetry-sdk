@@ -14,14 +14,19 @@ var TelemetrySyncManager = {
      */
     _teleData: [],
     _failedBatch: [],
+    _failedBatchSize: 20,
+    _syncRetryInterval: 5000,
     init: function() {
         var instance = this;
+        var Telemetry = EkTelemetry || Telemetry;
+        Telemetry.config.syncRetryInterval && instance._syncRetryInterval;
+        Telemetry.config.failedBatchSize && instance._failedBatchSize;
         document.addEventListener('TelemetryEvent', this.sendTelemetry);
     },
     sendTelemetry: function(event) {
         var telemetryEvent = event.detail;
+        Telemetry.config.telemetryDebugEnabled && console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         var instance = TelemetrySyncManager;
-        console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
         instance._teleData.push(Object.assign({}, telemetryEvent));
         if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
             TelemetrySyncManager.syncEvents();
@@ -51,19 +56,24 @@ var TelemetrySyncManager = {
         var fullPath = Telemetry.config.host + Telemetry.config.apislug + Telemetry.config.endpoint;
         headersParam['dataType'] = 'json';
         headersParam["Content-Type"] = "application/json";
+        headersParam['x-app-id'] = Telemetry.config.pdata.id;
+        headersParam['x-device-id'] = Telemetry.fingerPrintId;
+        headersParam['x-channel-id'] = Telemetry.config.channel;
         jQuery.ajax({
             url: fullPath,
             type: "POST",
             headers: headersParam,
             data: JSON.stringify(telemetryObj)
         }).done(function(resp) {
-            console.log("Telemetry API success", resp);
+            Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", resp);
         }).fail(function(error, textStatus, errorThrown) {
-            instance._failedBatch.push(telemetryObj);
+            if(instance._failedBatchSize > instance._failedBatch.length){
+                instance._failedBatch.push(telemetryObj);
+            }
             if (error.status == 403) {
-                console.error("Authentication error: ", error);
+                Telemetry.config.telemetryDebugEnabled && console.error("Authentication error: ", error);
             } else {
-                console.log("Error while Telemetry sync to server: ", error);
+                Telemetry.config.telemetryDebugEnabled && console.log("Error while Telemetry sync to server: ", error);
             }
         });
     },
@@ -72,14 +82,14 @@ var TelemetrySyncManager = {
         if(!instance._failedBatch.length){
             return;
         }
-        console.log('syncing failed telemetry batch');
-        var telemetryObj = instance._failedBatch.splice(0, 1);
-        instance.syncEvents(telemetryObj[0]);
+        Telemetry.config.telemetryDebugEnabled && console.log('syncing failed telemetry batch');
+        var telemetryObj = instance._failedBatch.shift();
+        instance.syncEvents(telemetryObj);
     }
 }
 if (typeof document != 'undefined') {
     TelemetrySyncManager.init();
     setInterval(function(){
         TelemetrySyncManager.syncFailedBatch();
-    }, 5000)
+    }, TelemetrySyncManager._syncRetryInterval)
 }
