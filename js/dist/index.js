@@ -2417,8 +2417,8 @@ var TelemetrySyncManager = {
     init: function() {
         var instance = this;
         var Telemetry = EkTelemetry || Telemetry;
-        Telemetry.config.syncRetryInterval && instance._syncRetryInterval;
-        Telemetry.config.failedBatchSize && instance._failedBatchSize;
+        Telemetry.config.syncRetryInterval && (instance._syncRetryInterval = Telemetry.config.syncRetryInterval);
+        Telemetry.config.failedBatchSize && (instance._failedBatchSize = Telemetry.config.failedBatchSize);
         document.addEventListener('TelemetryEvent', this.sendTelemetry);
     },
     sendTelemetry: function(event) {
