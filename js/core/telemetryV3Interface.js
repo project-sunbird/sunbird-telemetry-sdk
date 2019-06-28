@@ -343,7 +343,7 @@ var Telemetry = (function() {
         Telemetry.initialized = true;
         telemetryInstance.dispatcher = Telemetry.config.dispatcher ? Telemetry.config.dispatcher : libraryDispatcher;
         instance.updateConfigurations(config);
-        console.info("Telemetry is initialized.")
+        console.info("Telemetry is initialized.", config)
     }
 
     /**
