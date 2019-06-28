@@ -2413,7 +2413,7 @@ var TelemetrySyncManager = {
     _teleData: [],
     _failedBatch: [],
     _failedBatchSize: 20,
-    _syncRetryInterval: 5000,
+    _syncRetryInterval: 2000,
     init: function() {
         var instance = this;
         var Telemetry = EkTelemetry || Telemetry;
