@@ -2439,12 +2439,12 @@ var TelemetrySyncManager = {
                 return;
             }
             telemetryObj = {
-                "id": "ekstep.telemetry",
+                "id": "api.sunbird.telemetry",
                 "ver": Telemetry._version,
                 "params": {
                     "msgid": CryptoJS.MD5(JSON.stringify(telemetryEvents)).toString(),
                 },
-                "ets": (new Date()).getTime(),
+                "ets": (new Date()).getTime() + ((Telemetry.config.timeDiff*1000) || 0),
                 "events": telemetryEvents
             };
         }
@@ -2469,9 +2469,9 @@ var TelemetrySyncManager = {
                 instance._failedBatch.push(telemetryObj);
             }
             if (error.status == 403) {
-                Telemetry.config.telemetryDebugEnabled && console.error("Authentication error: ", error);
+                console.error("Authentication error: ", error);
             } else {
-                Telemetry.config.telemetryDebugEnabled && console.log("Error while Telemetry sync to server: ", error);
+                console.log("Error while Telemetry sync to server: ", error);
             }
         });
     },
