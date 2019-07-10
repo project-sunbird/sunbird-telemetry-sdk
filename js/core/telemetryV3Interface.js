@@ -124,7 +124,7 @@ var Telemetry = (function() {
         instance.updateValues(options);
         var eventData = instance.getEvent('INTERACT', data);
         if(contextCData)eventData.context.cdata = contextCData;
-        instance._dispatch();
+        instance._dispatch(eventData);
     }
 
     /**
