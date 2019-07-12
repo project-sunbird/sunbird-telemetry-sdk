@@ -2429,7 +2429,9 @@ var Telemetry = (function() {
              if (cb) cb(deviceDetails.result, deviceDetails.components);
           } else {
             Fingerprint2.getV18(FPoptions, function (result, components) {
-              localStorage.setItem('fpDetails', JSON.stringify({result: result, components: components}))
+                if (localStorage) {
+                    localStorage.setItem('fpDetails', JSON.stringify({result: result, components: components}))
+                }
                 if (cb) cb(result, components)
             })
           } 
