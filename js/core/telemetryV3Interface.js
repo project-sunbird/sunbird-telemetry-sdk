@@ -514,14 +514,6 @@ var Telemetry = (function() {
         }
     }
     var FPoptions = {
-        preprocessor: function (key, value) {
-            if (key == "userAgent") {
-                var parser = new UAParser(value); // https://github.com/faisalman/ua-parser-js
-                var userAgentMinusVersion = parser.getOS().name + ' ' + parser.getBrowser().name
-                return userAgentMinusVersion
-            }
-            return value
-        },
         audio: {
             timeout: 1000,
             // On iOS 11, audio context can only be used in response to user interaction.
@@ -555,22 +547,24 @@ var Telemetry = (function() {
             'fontsFlash': true,
             'canvas': true,
             'screenResolution': true,
-            'availableScreenResolution': true,
-            'touchSupport': true,
-            'plugins': true,
-            'webgl': true,
-            'audio': true,
-            'language': true,
-            'deviceMemory': true
+            'availableScreenResolution': true
         },
         NOT_AVAILABLE: 'not available',
         ERROR: 'error',
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        Fingerprint2.getV18(FPoptions, function (result, components) {
-            if (cb) cb(result, components)
-        })
+        if (localStorage && localStorage.getItem('fpDetails')) {
+            var deviceDetails = JSON.parse(localStorage.getItem('fpDetails'));
+             if (cb) cb(deviceDetails.result, deviceDetails.components);
+          } else {
+            Fingerprint2.getV18(FPoptions, function (result, components) {
+                if (localStorage) {
+                    localStorage.setItem('fpDetails', JSON.stringify({result: result, components: components}))
+                }
+                if (cb) cb(result, components)
+            })
+          } 
     }
     if (typeof Object.assign != 'function') {
         instance.objectAssign();
