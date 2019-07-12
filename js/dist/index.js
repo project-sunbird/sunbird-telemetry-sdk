@@ -2415,7 +2415,6 @@ var Telemetry = (function() {
             'doNotTrack': true,
             // uses js fonts already
             'fontsFlash': true,
-            'canvas': true,
             'screenResolution': true,
             'availableScreenResolution': true
         },
@@ -2430,9 +2429,10 @@ var Telemetry = (function() {
           } else {
             Fingerprint2.getV18(FPoptions, function (result, components) {
                 if (localStorage) {
+                    // fpDetails contains components and deviceId generated from fingerprintJs
                     localStorage.setItem('fpDetails', JSON.stringify({result: result, components: components}))
                 }
-                if (cb) cb(result, components)
+            if (cb) cb(result, components)
             })
           } 
     }
