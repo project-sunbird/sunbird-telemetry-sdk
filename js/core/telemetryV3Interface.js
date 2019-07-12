@@ -554,7 +554,7 @@ var Telemetry = (function() {
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        if (localStorage.getItem('fpDetails')) {
+        if (localStorage && localStorage.getItem('fpDetails')) {
             var deviceDetails = JSON.parse(localStorage.getItem('fpDetails'));
              if (cb) cb(deviceDetails.result, deviceDetails.components);
           } else {
