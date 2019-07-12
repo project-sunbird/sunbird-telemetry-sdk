@@ -568,12 +568,12 @@ var Telemetry = (function() {
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        if (localStorage.getItem('fp_deviceId')) {
-            const {result,components} = JSON.parse(localStorage.getItem('fp_deviceId'));
-            cb(result,components);
+        if (localStorage.getItem('fpDetails')) {
+            var deviceDetails = JSON.parse(localStorage.getItem('fpDetails'));
+             if (cb) cb(deviceDetails.result, deviceDetails.components);
           } else {
             Fingerprint2.getV18(FPoptions, function (result, components) {
-              localStorage.setItem('fp_deviceId', JSON.stringify({result, components}))
+              localStorage.setItem('fpDetails', JSON.stringify({result: result, components: components}))
                 if (cb) cb(result, components)
             })
           } 
