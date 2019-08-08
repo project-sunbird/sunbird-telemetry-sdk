@@ -553,16 +553,17 @@ var Telemetry = (function() {
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        if (localStorage && localStorage.getItem('fpDetails')) {
-            var deviceDetails = JSON.parse(localStorage.getItem('fpDetails'));
-             if (cb) cb(deviceDetails.result, deviceDetails.components);
+        const ver = 'v1';
+        if (localStorage && localStorage.getItem(`fpDetails_${ver}`)) {
+            var deviceDetails = JSON.parse(localStorage.getItem(`fpDetails_${ver}`));
+             if (cb) cb(deviceDetails.result, deviceDetails.components, ver);
           } else {
             Fingerprint2.getV18(FPoptions, function (result, components) {
                 if (localStorage) {
                     // fpDetails contains components and deviceId generated from fingerprintJs
-                    localStorage.setItem('fpDetails', JSON.stringify({result: result, components: components}))
+                    localStorage.setItem(`fpDetails_${ver}`, JSON.stringify({result: result, components: components}))
                 }
-            if (cb) cb(result, components)
+            if (cb) cb(result, components, ver)
             })
           } 
     }
