@@ -1801,74 +1801,6 @@ var CryptoJS = CryptoJS || function(s, p) {
     return Fingerprint2
   })
 /**
- * This is responsible for syncing of Telemetry
- * @class TelemetrySyncManager
- * @author Manjunath Davanam <manjunathd@ilimi.in>
- * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
- */
-
-var TelemetrySyncManager = {
-
-    /**
-     * This is the telemetry data for the perticular stage.
-     * @member {object} _teleData
-     * @memberof TelemetryPlugin
-     */
-    _teleData: [],
-    init: function() {
-        var instance = this;
-        document.addEventListener('TelemetryEvent', this.sendTelemetry);
-    },
-    sendTelemetry: function(event) {
-        var telemetryEvent = event.detail;
-        console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
-        var instance = TelemetrySyncManager;
-        instance._teleData.push(Object.assign({}, telemetryEvent));
-        if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
-            TelemetrySyncManager.syncEvents();
-        }
-    },
-    updateEventStack: function(events) {
-        TelemetrySyncManager._teleData = TelemetrySyncManager._teleData.concat(events);
-    },
-    syncEvents: function() {
-        var Telemetry = EkTelemetry || Telemetry;
-        var instance = TelemetrySyncManager;
-        var telemetryData = instance._teleData.splice(0, Telemetry.config.batchsize);
-        var telemetryObj = {
-            "id": "ekstep.telemetry",
-            "ver": Telemetry._version,
-            "ets": (new Date()).getTime(),
-            "events": telemetryData
-        };
-        var headersParam = {};
-        if ('undefined' != typeof Telemetry.config.authtoken)
-            headersParam["Authorization"] = 'Bearer ' + Telemetry.config.authtoken;
-
-        var fullPath = Telemetry.config.host + Telemetry.config.apislug + Telemetry.config.endpoint;
-        headersParam['dataType'] = 'json';
-        headersParam["Content-Type"] = "application/json";
-        jQuery.ajax({
-            url: fullPath,
-            type: "POST",
-            headers: headersParam,
-            data: JSON.stringify(telemetryObj)
-        }).done(function(resp) {
-            console.log("Telemetry API success", resp);
-        }).fail(function(error, textStatus, errorThrown) {
-            instance.updateEventStack(telemetryData);
-            if (error.status == 403) {
-                console.error("Authentication error: ", error);
-            } else {
-                console.log("Error while Telemetry sync to server: ", error);
-            }
-        });
-    }
-}
-if (typeof document != 'undefined') {
-    TelemetrySyncManager.init();
-}
-/**
  * Telemetry V3 Library
  * @author Manjunath Davanam <manjunathd@ilimi.in>
  * @author Akash Gupta <Akash.Gupta@tarento.com> 
@@ -2384,14 +2316,6 @@ var Telemetry = (function() {
         }
     }
     var FPoptions = {
-        preprocessor: function (key, value) {
-            if (key == "userAgent") {
-                var parser = new UAParser(value); // https://github.com/faisalman/ua-parser-js
-                var userAgentMinusVersion = parser.getOS().name + ' ' + parser.getBrowser().name
-                return userAgentMinusVersion
-            }
-            return value
-        },
         audio: {
             timeout: 1000,
             // On iOS 11, audio context can only be used in response to user interaction.
@@ -2423,24 +2347,27 @@ var Telemetry = (function() {
             'doNotTrack': true,
             // uses js fonts already
             'fontsFlash': true,
-            'canvas': true,
             'screenResolution': true,
-            'availableScreenResolution': true,
-            'touchSupport': true,
-            'plugins': true,
-            'webgl': true,
-            'audio': true,
-            'language': true,
-            'deviceMemory': true
+            'availableScreenResolution': true
         },
         NOT_AVAILABLE: 'not available',
         ERROR: 'error',
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        Fingerprint2.getV18(FPoptions, function (result, components) {
-            if (cb) cb(result, components)
-        })
+        const ver = 'v1';
+        if (localStorage && localStorage.getItem(`fpDetails_${ver}`)) {
+            var deviceDetails = JSON.parse(localStorage.getItem(`fpDetails_${ver}`));
+             if (cb) cb(deviceDetails.result, deviceDetails.components, ver);
+          } else {
+            Fingerprint2.getV18(FPoptions, function (result, components) {
+                if (localStorage) {
+                    // fpDetails contains components and deviceId generated from fingerprintJs
+                    localStorage.setItem(`fpDetails_${ver}`, JSON.stringify({result: result, components: components}))
+                }
+            if (cb) cb(result, components, ver)
+            })
+          } 
     }
     if (typeof Object.assign != 'function') {
         instance.objectAssign();
@@ -2463,4 +2390,99 @@ EkTelemetry = $t = Telemetry;
  */
 if (typeof module != 'undefined') {
     module.exports = Telemetry;
+}
+/**
+ * This is responsible for syncing of Telemetry
+ * @class TelemetrySyncManager
+ * @author Manjunath Davanam <manjunathd@ilimi.in>
+ * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
+ */
+
+var TelemetrySyncManager = {
+
+    /**
+     * This is the telemetry data for the perticular stage.
+     * @member {object} _teleData
+     * @memberof TelemetryPlugin
+     */
+    _teleData: [],
+    _failedBatch: [],
+    _failedBatchSize: 20,
+    _syncRetryInterval: 2000,
+    init: function() {
+        var instance = this;
+        var Telemetry = EkTelemetry || Telemetry;
+        Telemetry.config.syncRetryInterval && (instance._syncRetryInterval = Telemetry.config.syncRetryInterval);
+        Telemetry.config.failedBatchSize && (instance._failedBatchSize = Telemetry.config.failedBatchSize);
+        document.addEventListener('TelemetryEvent', this.sendTelemetry);
+    },
+    sendTelemetry: function(event) {
+        var telemetryEvent = event.detail;
+        Telemetry.config.telemetryDebugEnabled && console.log("Telemetry Events ", JSON.stringify(telemetryEvent));
+        var instance = TelemetrySyncManager;
+        instance._teleData.push(Object.assign({}, telemetryEvent));
+        if ((telemetryEvent.eid.toUpperCase() === "END") || (instance._teleData.length >= Telemetry.config.batchsize)) {
+            TelemetrySyncManager.syncEvents();
+        }
+    },
+    syncEvents: function(telemetryObj) {
+        var Telemetry = EkTelemetry || Telemetry;
+        var instance = TelemetrySyncManager;
+        if(!telemetryObj){
+            var telemetryEvents = instance._teleData.splice(0, Telemetry.config.batchsize);
+            if(!telemetryEvents.length){
+                return;
+            }
+            telemetryObj = {
+                "id": "api.sunbird.telemetry",
+                "ver": Telemetry._version,
+                "params": {
+                    "msgid": CryptoJS.MD5(JSON.stringify(telemetryEvents)).toString(),
+                },
+                "ets": (new Date()).getTime() + ((Telemetry.config.timeDiff*1000) || 0),
+                "events": telemetryEvents
+            };
+        }
+        var headersParam = {};
+        if ('undefined' != typeof Telemetry.config.authtoken)
+            headersParam["Authorization"] = 'Bearer ' + Telemetry.config.authtoken;
+        var fullPath = Telemetry.config.host + Telemetry.config.apislug + Telemetry.config.endpoint;
+        headersParam['dataType'] = 'json';
+        headersParam["Content-Type"] = "application/json";
+        headersParam['x-app-id'] = Telemetry.config.pdata.id;
+        headersParam['x-device-id'] = Telemetry.fingerPrintId;
+        headersParam['x-channel-id'] = Telemetry.config.channel;
+        jQuery.ajax({
+            url: fullPath,
+            type: "POST",
+            headers: headersParam,
+            data: JSON.stringify(telemetryObj)
+        }).done(function(resp) {
+            Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", resp);
+        }).fail(function(error, textStatus, errorThrown) {
+            if(instance._failedBatchSize > instance._failedBatch.length){
+                instance._failedBatch.push(telemetryObj);
+            }
+            if (error.status == 403) {
+                console.error("Authentication error: ", error);
+            } else {
+                console.log("Error while Telemetry sync to server: ", error);
+            }
+        });
+    },
+    syncFailedBatch: function(){
+        var instance = TelemetrySyncManager;
+        if(!instance._failedBatch.length){
+            return;
+        }
+        Telemetry.config.telemetryDebugEnabled && console.log('syncing failed telemetry batch');
+        var telemetryObj = instance._failedBatch.shift();
+        instance.syncEvents(telemetryObj);
+    }
+}
+if (typeof document != 'undefined') {
+    TelemetrySyncManager.init();
+    setInterval(function(){
+        TelemetrySyncManager.syncFailedBatch();
+    }, TelemetrySyncManager._syncRetryInterval)
 }
