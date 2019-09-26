@@ -1,10 +1,10 @@
 /**
  * Telemetry V3 Library
  * @author Manjunath Davanam <manjunathd@ilimi.in>
- * @author Akash Gupta <Akash.Gupta@tarento.com> 
+ * @author Akash Gupta <Akash.Gupta@tarento.com>
  */
 
-// To support for node server environment 
+// To support for node server environment
 if (typeof require === "function") {
     var Ajv = require('ajv')
 }
@@ -75,7 +75,7 @@ var Telemetry = (function() {
     }
 
     /**
-     * Which is used to start and initialize the telemetry event. 
+     * Which is used to start and initialize the telemetry event.
      * If the telemetry is already initialzed then it will trigger only start event.
      * @param  {object} config     [Telemetry lib configurations]
      * @param  {string} contentId  [Content Identifier]
@@ -130,7 +130,7 @@ var Telemetry = (function() {
         assessEvent = instance.getEvent('ASSESS', data);
         // This code will replace current version with the new version number, if present in options.
         if (options && options.eventVer) assessEvent.ver = options.eventVer;
-        instance._dispatch(assessEvent);   
+        instance._dispatch(assessEvent);
     }
 
     /**
@@ -274,8 +274,8 @@ var Telemetry = (function() {
     }
 
     /**
-     * Which is used to know the whether telemetry is initialized or not. 
-     * @return {Boolean} 
+     * Which is used to know the whether telemetry is initialized or not.
+     * @return {Boolean}
      */
     this.telemetry.isInitialized = function() {
         return Telemetry.initialized;
@@ -385,7 +385,7 @@ var Telemetry = (function() {
 
     /**
      * Which is used to get set Actor id as device id if actor id is 'anonymous'
-     * @param  {string} actorId 
+     * @param  {string} actorId
      * @param  {string} deviceId    [DeviceId]
      * @return {string} [actor id based on value of the actor came from input]
      */
@@ -405,7 +405,7 @@ var Telemetry = (function() {
      */
     instance.getEvent = function(eventId, data) {
         telemetryInstance.telemetryEnvelop.eid = eventId;
-        // timeDiff (in sec) is diff of server date and local date 
+        // timeDiff (in sec) is diff of server date and local date
         telemetryInstance.telemetryEnvelop.ets = (new Date()).getTime() + ((Telemetry.config.timeDiff*1000) || 0);
         telemetryInstance.telemetryEnvelop.ver = Telemetry._version;
         telemetryInstance.telemetryEnvelop.mid = '';
@@ -436,7 +436,7 @@ var Telemetry = (function() {
 
     /**
      * Which is used to get the current updated global context value.
-     * @return {object} 
+     * @return {object}
      */
     instance.getGlobalContext = function() {
         return telemetryInstance._globalContext;
@@ -444,7 +444,7 @@ var Telemetry = (function() {
 
     /**
      * Which is used to get the current global object value.
-     * @return {object} 
+     * @return {object}
      */
     instance.getGlobalObject = function() {
         return telemetryInstance._globalObject;
@@ -469,7 +469,7 @@ var Telemetry = (function() {
     /**
      * Which is used to get the value of 'context','actor','object'
      * @param  {string} key [ Name of object which we is need to get ]
-     * @return {object}     
+     * @return {object}
      */
     instance.getUpdatedValue = function(key) {
         switch (key.toLowerCase()) {
@@ -535,7 +535,22 @@ var Telemetry = (function() {
             sortPluginsFor: [/palemoon/i],
             excludeIE: false
         },
-        extraComponents: [],
+        extraComponents: [
+            {
+                key: 'customKey',
+                getData: function (done, options) {
+                    // This is to set unique did for the user
+                    var didGenerateTime = (new Date()).getTime();
+                    const stringDidGT = 'didGenerateTime';
+                    if(window.localStorage && window.localStorage.getItem(stringDidGT) {
+                        didGenerateTime =  window.localStorage.getItem(stringDidGT);
+                    } else {
+                        window.localStorage.setItem(stringDidGT, didGenerateTime);
+                    }
+                    done(didGenerateTime);
+                }
+            }
+        ],
         excludes: {
             // Unreliable on Windows, see https://github.com/Valve/fingerprintjs2/issues/375
             'enumerateDevices': true,
@@ -553,7 +568,7 @@ var Telemetry = (function() {
         EXCLUDED: 'excluded'
     }
     this.telemetry.getFingerPrint = function (cb) {
-        const ver = 'v1';
+        const ver = 'v2';
         if (localStorage && localStorage.getItem(`fpDetails_${ver}`)) {
             var deviceDetails = JSON.parse(localStorage.getItem(`fpDetails_${ver}`));
              if (cb) cb(deviceDetails.result, deviceDetails.components, ver);
@@ -565,7 +580,7 @@ var Telemetry = (function() {
                 }
             if (cb) cb(result, components, ver)
             })
-          } 
+          }
     }
     if (typeof Object.assign != 'function') {
         instance.objectAssign();
