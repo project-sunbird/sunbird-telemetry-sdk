@@ -542,7 +542,7 @@ var Telemetry = (function() {
                     // This is to set unique did for the user
                     var didGenerateTime = (new Date()).getTime();
                     const stringDidGT = 'didGenerateTime';
-                    if(window.localStorage && window.localStorage.getItem(stringDidGT) {
+                    if(window.localStorage && window.localStorage.getItem(stringDidGT)) {
                         didGenerateTime =  window.localStorage.getItem(stringDidGT);
                     } else {
                         window.localStorage.setItem(stringDidGT, didGenerateTime);
