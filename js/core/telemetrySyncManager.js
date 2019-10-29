@@ -32,7 +32,7 @@ var TelemetrySyncManager = {
             TelemetrySyncManager.syncEvents();
         }
     },
-    syncEvents: function(telemetryObj) {
+    syncEvents: function(async = true, telemetryObj) {
         var Telemetry = EkTelemetry || Telemetry;
         var instance = TelemetrySyncManager;
         if(!telemetryObj){
@@ -63,7 +63,8 @@ var TelemetrySyncManager = {
             url: fullPath,
             type: "POST",
             headers: headersParam,
-            data: JSON.stringify(telemetryObj)
+            data: JSON.stringify(telemetryObj),
+            async: async
         }).done(function(resp) {
             Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", resp);
         }).fail(function(error, textStatus, errorThrown) {
@@ -84,7 +85,7 @@ var TelemetrySyncManager = {
         }
         Telemetry.config.telemetryDebugEnabled && console.log('syncing failed telemetry batch');
         var telemetryObj = instance._failedBatch.shift();
-        instance.syncEvents(telemetryObj);
+        instance.syncEvents(true, telemetryObj);
     }
 }
 if (typeof document != 'undefined') {

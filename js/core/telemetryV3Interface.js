@@ -314,9 +314,9 @@ var Telemetry = (function() {
         telemetryInstance._currentTags = tags || [];
     }
 
-    this.telemetry.syncEvents = function() {
+    this.telemetry.syncEvents = function(async = true) {
         if (typeof TelemetrySyncManager != 'undefined') {
-            TelemetrySyncManager.syncEvents();
+            TelemetrySyncManager.syncEvents(async);
         }
     }
 
