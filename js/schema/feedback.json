@@ -31,8 +31,12 @@
               "$id": "http://api.ekstep.org/telemetry/edata/rating",
               "type": "number"
             },
-            "comments": {
-              "$id": "http://api.ekstep.org/telemetry/edata/comments",
+            "commentid": {
+              "$id": "http://api.ekstep.org/telemetry/edata/commentid",
+              "type": "string"
+            },
+            "commenttxt": {
+              "$id": "http://api.ekstep.org/telemetry/edata/commenttxt",
               "type": "string"
             }
           }
