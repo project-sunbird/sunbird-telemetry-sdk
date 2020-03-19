@@ -161,8 +161,8 @@ var Telemetry = (function() {
     this.telemetry.feedback = function(data, options) {
         var eksData = {
             "rating": data.rating,
-            "commentid": data.comments || '',
-            "commenttxt": data.comments || ''
+            "commentid": data.commentid || '',
+            "commenttxt": data.commenttxt || ''
         }
         instance.updateValues(options);
         instance._dispatch(instance.getEvent('FEEDBACK', eksData));
