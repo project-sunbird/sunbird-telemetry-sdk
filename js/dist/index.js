@@ -1825,7 +1825,7 @@ var libraryDispatcher = {
 };
 
 
-var Telemetry = (function() {
+var Telemetry = (() => {
     this.telemetry = function() {};
     var instance = function() {};
     var telemetryInstance = this;
