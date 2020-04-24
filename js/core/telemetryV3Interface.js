@@ -218,6 +218,16 @@ var Telemetry = (function() {
     }
 
     /**
+     * Which is used to log the trace event.
+     * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
+     * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
+     */
+    this.telemetry.trace = function(data, options) {
+        instance.updateValues(options);
+        instance._dispatch(instance.getEvent('TRACE', data));
+    }
+
+    /**
      * Which is used to log the search event.
      * @param  {object} data       [data which is need to pass in this event ex: {"type":"player","mode":"ContentPlayer","pageid":"splash"}]
      * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
