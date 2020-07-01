@@ -45,6 +45,10 @@
             "duration": {
               "$id": "http://api.ekstep.org/telemetry/edata/duration",
               "type": "number"
+            },
+            "type": {
+              "$id": "http://api.ekstep.org/telemetry/edata/type",
+              "type": "string"
             }
           }
         }
