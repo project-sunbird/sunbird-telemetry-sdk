@@ -266,7 +266,7 @@ var Telemetry = (function() {
     this.telemetry.end = function(data, options) {
         if (telemetryInstance.startData.length) {
             var startEventObj = telemetryInstance.startData.pop();
-            data.duration = ((new Date()).getTime() - startEventObj.ets) * 0.001; // Converting duration miliSeconds to seconds
+            data.duration = parseFloat((((new Date()).getTime() - startEventObj.ets) * 0.001).toFixed(2)); // Converting duration miliSeconds to seconds
             instance.updateValues(options);
             instance._dispatch(instance.getEvent('END', data));
         } else {
