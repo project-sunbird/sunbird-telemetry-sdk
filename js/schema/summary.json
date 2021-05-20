@@ -65,7 +65,7 @@
               },
               "extra": {
                 "$id": "http://api.ekstep.org/telemetry/edata/extra",
-                "type": "object"
+                "type": "array"
               }
             }
           }
