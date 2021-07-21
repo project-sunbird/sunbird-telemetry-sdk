@@ -44,6 +44,10 @@
               "$id": "http://api.ekstep.org/telemetry/edata/stacktrace",
               "type": "string"
             },
+            "traceid": {
+              "$id": "http://api.ekstep.org/telemetry/edata/traceid",
+              "type": "string"
+            },
             "pageid": {
               "$id": "http://api.ekstep.org/telemetry/edata/pageid",
               "type": "string"
