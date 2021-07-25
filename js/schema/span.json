@@ -1,0 +1,71 @@
+{
+    "$id": "http://api.ekstep.org/telemetry/trace/edata/span",
+    "type": "object",
+    "properties": {
+      "traceID": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/traceID",
+        "type": "string"
+      },
+      "spanID": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/spanID",
+        "type": "string"
+      },
+      "operationName": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/operationName",
+        "type": "string"
+      },
+      "flags": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/flags",
+        "type": "number"
+      },
+      "references": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/references",
+        "type": "array",
+        "items": {
+            "type": "object"
+        }
+      },
+      "startTime": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/startTime",
+        "type": "number"
+      },
+      "duration": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/duration",
+        "type": "number"
+      },
+      "parentSpanId": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/parentSpanId",
+        "type": "string"
+      },
+      "tags": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/tags",
+        "type": "array",
+        "items": {
+            "type": "object"
+        }
+      },
+      "context": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/context",
+        "type": "array",
+        "items": {
+            "type": "object"
+        }
+      },
+      "logs": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/logs",
+        "type": "array",
+        "items": {
+            "type": "object"
+        }
+      },
+      "processID": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/processID",
+        "type": "string"
+      },
+      "warnings": {
+        "$id": "http://api.ekstep.org/telemetry/trace/edata/span/warnings",
+        "type": "string"
+      }
+    },
+    "required": [ "traceID", "spanID", "operationName"]
+  }
