@@ -116,8 +116,15 @@ var Telemetry = (function() {
      * @param  {object} options    [It can have `context, object, actor` can be explicitly passed in this event]
      */
     this.telemetry.interact = function(data, options) {
+        var contextCData;
+        if(options && options.context && options.context.cdata){
+            contextCData = options.context.cdata;
+            options.context.cdata = []
+        }
         instance.updateValues(options);
-        instance._dispatch(instance.getEvent('INTERACT', data));
+        var eventData = instance.getEvent('INTERACT', data);
+        if(contextCData)eventData.context.cdata = contextCData;
+        instance._dispatch(eventData);
     }
 
     /**
