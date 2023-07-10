@@ -1,6 +1,6 @@
 {
     "name": "@project-sunbird/telemetry-sdk",
-    "version": "0.0.30",
+    "version": "1.0.0",
     "description": "Telemetry Service javascript library helps to generate the telemetry events.",
     "directories": {
         "example": "example",
@@ -30,7 +30,8 @@
         "karma-jasmine": "1.1.2",
         "jasmine-core": "3.2.1",
         "jquery": "3.3.1",
-        "codecov": "3.0.4"
+        "codecov": "3.0.4",
+        "axios": "1.4.0"
     },
     "scripts": {
         "test": "karma start karma.renderer.config.js",
