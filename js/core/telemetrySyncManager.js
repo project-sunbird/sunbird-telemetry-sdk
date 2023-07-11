@@ -5,7 +5,7 @@
  * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
  */
 
-const axios = require("axios")
+const axios = require("axios").default;
 
 var TelemetrySyncManager = {
 
