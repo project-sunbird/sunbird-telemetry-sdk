@@ -23,7 +23,7 @@ var libraryDispatcher = {
 };
 
 
-var Telemetry = (function() {
+var Telemetry = (()=>{
     this.telemetry = function() {};
     var instance = function() {};
     var telemetryInstance = this;
@@ -431,7 +431,9 @@ var Telemetry = (function() {
         config.cdata && (telemetryInstance._globalContext.cdata = config.cdata);
         config.pdata && (telemetryInstance._globalContext.pdata = config.pdata);
 
-
+        config.host && (telemetryInstance._globalContext.host = config.host);
+        config.endpoint && (telemetryInstance._globalContext.endpoint = config.endpoint);
+        config.batchsize && (telemetryInstance._globalContext.batchsize = config.batchsize);
     }
 
     /**
