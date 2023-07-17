@@ -9,19 +9,38 @@ if (typeof require === "function") {
     var Ajv = require('ajv')
 }
 
-
 var libraryDispatcher = {
-    dispatch: function(event) {
-        if (typeof document != 'undefined') {
-            //To Support for external user who ever lisenting on this 'TelemetryEvent' event.
-            // IT  WORKS ONLY FOR CLIENT SIDE
-            document.dispatchEvent(new CustomEvent('TelemetryEvent', { detail: event }));
-        } else {
-            console.info("Library dispatcher supports only for client side.");
-        }
-    }
+  dispatch: function (event) {
+    this.telemetry.raiseEvent("TelemetryEvent", { detail: event });
+  }
 };
 
+const EventListener = function() {
+    const events = {};
+  
+    //listens to the event
+    var  raiseEvent=  function (eventName, handler) {
+        var currentEvents = events[eventName];
+        if (!currentEvents) return;
+    
+        for (var i = 0; i < currentEvents.length; i++) {
+          if (typeof currentEvents[i] == "function") {
+            currentEvents[i](handler);
+          }
+        }
+      }
+    
+     //dispatching event
+    var addEventListener =  function (eventName, handler) {
+        if (!(eventName in events)){ 
+            events[eventName] = [];
+        }
+        events[eventName].push(handler);
+      }
+
+    this.telemetry.raiseEvent = raiseEvent;
+    this.telemetry.addEventListener = addEventListener;
+  }
 
 var Telemetry = (function() {
     this.telemetry = function() {};
@@ -31,7 +50,10 @@ var Telemetry = (function() {
     this.telemetry.config = {};
     this.telemetry._version = "3.0";
     this.telemetry.fingerPrintId = undefined;
+    EventListener.call(this);
     this.dispatcher = libraryDispatcher;
+    this.dispatcher.dispatch = this.dispatcher.dispatch.bind(this);
+  
     this._defaultValue = {
             uid: "anonymous",
             authtoken: "",

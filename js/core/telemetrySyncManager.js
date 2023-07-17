@@ -21,7 +21,7 @@ var TelemetrySyncManager = {
         var Telemetry = EkTelemetry || Telemetry;
         Telemetry.config.syncRetryInterval && (instance._syncRetryInterval = Telemetry.config.syncRetryInterval);
         Telemetry.config.failedBatchSize && (instance._failedBatchSize = Telemetry.config.failedBatchSize);
-        document.addEventListener('TelemetryEvent', this.sendTelemetry);
+        Telemetry.addEventListener('TelemetryEvent', this.sendTelemetry);
     },
     sendTelemetry: function(event) {
         var telemetryEvent = event.detail;
@@ -59,14 +59,15 @@ var TelemetrySyncManager = {
         headersParam['x-app-id'] = Telemetry.config.pdata.id;
         headersParam['x-device-id'] = Telemetry.fingerPrintId;
         headersParam['x-channel-id'] = Telemetry.config.channel;
-        jQuery.ajax({
-            url: fullPath,
-            type: "POST",
-            headers: headersParam,
-            data: JSON.stringify(telemetryObj)
-        }).done(function(resp) {
-            Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", resp);
-        }).fail(function(error, textStatus, errorThrown) {
+        axios.post(
+            fullPath,
+            JSON.stringify(telemetryObj),
+            {headers: {headersParam}}
+        )
+        .then((result) => {
+            Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", result);
+        })
+        .catch((error) => {
             if(instance._failedBatchSize > instance._failedBatch.length){
                 instance._failedBatch.push(telemetryObj);
             }
