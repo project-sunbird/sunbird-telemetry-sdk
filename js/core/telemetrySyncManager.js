@@ -4,6 +4,7 @@
  * @author Manjunath Davanam <manjunathd@ilimi.in>
  * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
  */
+import { default as axios } from 'axios';
 
 var TelemetrySyncManager = {
 
@@ -88,9 +89,8 @@ var TelemetrySyncManager = {
         instance.syncEvents(telemetryObj);
     }
 }
-if (typeof document != 'undefined') {
-    TelemetrySyncManager.init();
-    setInterval(function(){
-        TelemetrySyncManager.syncFailedBatch();
-    }, TelemetrySyncManager._syncRetryInterval)
-}
+
+TelemetrySyncManager.init();
+setInterval(function(){
+    TelemetrySyncManager.syncFailedBatch();
+}, TelemetrySyncManager._syncRetryInterval)
