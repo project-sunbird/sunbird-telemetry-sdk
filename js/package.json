@@ -1,42 +1,35 @@
 {
     "name": "@project-sunbird/telemetry-sdk",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Telemetry Service javascript library helps to generate the telemetry events.",
     "directories": {
         "example": "example",
         "test": "test"
     },
     "devDependencies": {
-        "ajv": "6.5.3",
-        "rimraf": "2.6.2",
-        "cpy-cli": "2.0.0",
-        "grunt": "~0.4.5",
-        "grunt-cli": "*",
-        "grunt-contrib-clean": "*",
-        "grunt-contrib-copy": "*",
-        "grunt-contrib-uglify": "^0.9.1",
-        "gulp": "^3.9.1",
-        "grunt-contrib-concat": "1.0.1",
-        "karma": "^0.13.22",
+        "@metahub/karma-jasmine-jquery": "^4.0.1",
+        "ajv": "^6.12.6",
+        "codecov": "^3.8.3",
+        "cpy-cli": "^5.0.0",
+        "jasmine-core": "3.2.1",
+        "jquery": "^3.7.1",
+        "karma": "^6.4.2",
         "karma-chrome-launcher": "^1.0.1",
-        "grunt-karma": "^0.12.2",
-        "karma-jasmine-jquery": "^0.1.1",
-        "karma-phantomjs-launcher": "^1.0.0",
+        "karma-coverage": "^2.2.1",
+        "karma-jasmine": "1.1.2",
         "karma-jasmine-matchers": "3.8.3",
         "karma-junit-reporter": "1.2.0",
-        "karma-ng-html2js-preprocessor": "1.0.0",
-        "karma-verbose-reporter": "0.0.6",
         "karma-mocha-reporter": "2.2.5",
-        "karma-jasmine": "1.1.2",
-        "jasmine-core": "3.2.1",
-        "jquery": "3.3.1",
-        "codecov": "3.0.4"
+        "karma-ng-html2js-preprocessor": "1.0.0",
+        "karma-phantomjs-launcher": "^1.0.4",
+        "karma-verbose-reporter": "0.0.6",
+        "rimraf": "2.6.2"
     },
     "scripts": {
         "test": "karma start karma.renderer.config.js",
         "codecov": "codecov",
-        "test-sdk": "grunt renderer-telemetryV3",
-        "build": "node_modules/.bin/rimraf ./dist && gulp build-telemetry-schema && grunt build-telemetry-lib && node_modules/.bin/cpy package.json ./dist && node_modules/.bin/cpy README.md ./dist"
+        "test-sdk": "karma start karma.renderer.config.js",
+        "build": "node_modules/.bin/rimraf ./dist && node bundle-schema.js && node buildSDK.js && node_modules/.bin/cpy package.json ./dist && node_modules/.bin/cpy README.md ./dist"
     },
     "repository": {
         "type": "git",
@@ -62,9 +55,7 @@
     },
     "homepage": "https://github.com/project-sunbird/sunbird-telemetry-sdk/tree/master/js#readme",
     "dependencies": {
-        "axios": "1.4.0",
-        "grunt-karma": "^0.12.2",
-        "karma": "^3.0.0"
+        "axios": "1.6.2"
     },
     "overrides": {
         "graceful-fs": "^4.2.11"

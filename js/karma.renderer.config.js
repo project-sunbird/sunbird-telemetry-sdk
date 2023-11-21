@@ -53,7 +53,7 @@ module.exports = function(config) {
 
         plugins: [
             "karma-phantomjs-launcher",
-            "karma-jasmine-jquery",
+            "@metahub/karma-jasmine-jquery",
             "karma-jasmine",
             "karma-jasmine-matchers",
             "karma-junit-reporter",
