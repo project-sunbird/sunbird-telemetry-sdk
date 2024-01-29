@@ -32,6 +32,7 @@ var concatFile = () => {
         var outputStream = fs.createWriteStream(path.join(__dirname, '/dist/index.js'));
         filesData.forEach(fileData => {
             outputStream.write(fileData);
+            outputStream.write("\r\n");
         })
         outputStream.end();
     }).catch(error => {
