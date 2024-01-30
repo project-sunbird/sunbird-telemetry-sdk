@@ -54,9 +54,6 @@
         "url": "https://github.com/project-sunbird/sunbird-telemetry-sdk/issues"
     },
     "homepage": "https://github.com/project-sunbird/sunbird-telemetry-sdk/tree/master/js#readme",
-    "dependencies": {
-        "axios": "1.6.2"
-    },
     "overrides": {
         "graceful-fs": "^4.2.11"
     }
