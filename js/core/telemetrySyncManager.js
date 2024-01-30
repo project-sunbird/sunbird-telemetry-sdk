@@ -5,7 +5,6 @@
  * @author Krushanu Mohapatra <Krushanu.Mohapatra@tarento.com>
  */
 
-const axios = require("axios").default;
 
 var TelemetrySyncManager = {
 
@@ -61,15 +60,15 @@ var TelemetrySyncManager = {
         headersParam['x-app-id'] = Telemetry.config.pdata.id;
         headersParam['x-device-id'] = Telemetry.fingerPrintId;
         headersParam['x-channel-id'] = Telemetry.config.channel;
-        axios.post(
-            fullPath,
-            JSON.stringify(telemetryObj),
-            {headers: {headersParam}}
-        )
-        .then((result) => {
-            Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", result);
-        })
-        .catch((error) => {
+        jQuery.ajax({
+            url: fullPath,
+            type: "POST",
+            headers: headersParam,
+            data: JSON.stringify(telemetryObj),
+            async: async
+        }).done(function(resp) {
+            Telemetry.config.telemetryDebugEnabled && console.log("Telemetry API success", resp);
+        }).fail(function(error, textStatus, errorThrown) {
             if(instance._failedBatchSize > instance._failedBatch.length){
                 instance._failedBatch.push(telemetryObj);
             }
