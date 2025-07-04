@@ -23,13 +23,16 @@
         "karma-ng-html2js-preprocessor": "1.0.0",
         "karma-phantomjs-launcher": "^1.0.4",
         "karma-verbose-reporter": "0.0.6",
-        "rimraf": "2.6.2"
+        "rimraf": "2.6.2",
+        "eslint": "^8.57.0",
+        "eslint-plugin-only-warn": "^1.0.4"
     },
     "scripts": {
         "test": "karma start karma.renderer.config.js",
         "codecov": "codecov",
         "test-sdk": "karma start karma.renderer.config.js",
-        "build": "node_modules/.bin/rimraf ./dist && node bundle-schema.js && node buildSDK.js && node_modules/.bin/cpy package.json ./dist && node_modules/.bin/cpy README.md ./dist"
+        "build": "node_modules/.bin/rimraf ./dist && node bundle-schema.js && node buildSDK.js && node_modules/.bin/cpy package.json ./dist && node_modules/.bin/cpy README.md ./dist",
+        "lint": "eslint . --ext .js"
     },
     "repository": {
         "type": "git",

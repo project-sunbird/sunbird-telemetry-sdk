@@ -1,0 +1,57 @@
+name: Build, Test and Lint
+
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build-test-sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: js
+
+      - name: Build
+        run: npm run build
+        working-directory: js
+
+      - name: Run tests
+        run: npm test
+        working-directory: js
+        continue-on-error: true
+
+      #- name: Install SonarQube scanner
+       # run: npm install -g sonarqube-scanner
+
+      #- name: Run SonarQube scanner
+       # env:
+        #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         # SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        #run: sonar-scanner
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: js
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: js 

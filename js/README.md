@@ -910,6 +910,32 @@ let data = { // Required
   * Travis integration     
 
 
-  
+# GitHub Actions
 
+## Build and Test on Pull Request
+
+This GitHub Actions workflow runs **build, test, and lint checks** automatically when a pull request is opened against any branch.
+
+### When It Runs
+
+- **Trigger**: On every `pull_request` to any branch (`'**'`)
+
+### Prerequisites Before Triggering
+
+Make sure the following are set up **before** opening a pull request:
+
+### Secrets
+`SONAR_TOKEN`: For SonarQube authentication 
+
+## NPM Publish Github action
+
+### When It Runs
+
+- **Trigger**: On every tag creation from any branch (`'*'`)
+
+### Prerequisites
+
+Make sure that `NPM_TOKEN` is set in Secrets before creating a tag.
+
+Note: The secrets and variables should be set in Github UI (`settings/secrets and variables/actions`)
     

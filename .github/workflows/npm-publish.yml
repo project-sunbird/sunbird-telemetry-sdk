@@ -1,0 +1,54 @@
+name: Publish Release Telemetry SDK
+
+on:
+  push:
+    tags:
+      - '*'
+    
+jobs:
+  # Build and publish to npm registry
+  build-and-publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: js
+    steps:
+      # Step 1: Checkout the source code from the tag
+      - uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment for building
+      # Uses Node.js 16 which is stable and well-supported
+      - name: Set up Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: 'js/package-lock.json'
+          registry-url: 'https://registry.npmjs.org'
+          always-auth: true
+
+      # Step 3: Cache npm dependencies to speed up builds
+      # This caches the node_modules directory between workflow runs
+      - name: Cache npm packages
+        id: cache-npm
+        uses: actions/cache@v3
+        with:
+          path: js/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('js/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 5: Build the SDK
+      # This creates the bundled telemetry SDK in the dist directory
+      - name: Build Telemetry SDK
+        run: npm run build
+
+      # Step 7: Publish to npm registry
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
