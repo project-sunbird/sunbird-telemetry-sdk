@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telemetry Integration Test</title>
+</head>
+<body>
+    <h1>Telemetry Integration Test</h1>
+    <div id="status">Waiting for telemetry...</div>
+    <button id="interact-btn">Click Me (Interact)</button>
+
+    <script src="../../dist/index.global.js"></script>
+    <script>
+        // Check if Telemetry is available globally
+        if (typeof Telemetry !== 'undefined') {
+            // Note: tsup globalName creates a global variable 'Telemetry' which contains the exports.
+            // Since we exported $t in index.ts, it should be available as Telemetry.$t
+
+            const $t = Telemetry.$t;
+            const statusDiv = document.getElementById('status');
+
+            if (!$t) {
+                console.error('$t instance not found on Telemetry global', Telemetry);
+                statusDiv.textContent = 'Telemetry loaded but $t instance missing';
+            } else {
+                 console.log('Telemetry initialized:', $t);
+
+                // Mock Dispatcher to avoid network errors in this simple test
+                $t.initialize({
+                    pdata: { id: 'browser-test', ver: '1.0' },
+                    channel: 'test-channel',
+                    env: 'browser-test',
+                    // Override dispatcher to see events in console/DOM
+                    dispatcher: {
+                        dispatch: function(event) {
+                            console.log('Event Dispatched:', event);
+                            const p = document.createElement('p');
+                            p.textContent = `Dispatched: ${event.eid}`;
+                            statusDiv.appendChild(p);
+                        }
+                    }
+                });
+
+                $t.start({}, 'content-id', '1.0', { type: 'app' });
+
+                document.getElementById('interact-btn').addEventListener('click', () => {
+                    $t.interact({ type: 'CLICK', id: 'interact-btn' });
+                });
+
+                setTimeout(() => {
+                    $t.end({ type: 'app' });
+                }, 1000);
+            }
+
+        } else {
+            document.getElementById('status').textContent = 'Telemetry library not loaded!';
+            console.error('Telemetry library not loaded');
+        }
+    </script>
+</body>
+</html>
