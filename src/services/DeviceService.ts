@@ -40,7 +40,8 @@ export class DeviceService {
         const deviceId = result.visitorId;
 
         try {
-            localStorage.setItem(storageKey, JSON.stringify({ result: deviceId, components: result.components }));
+            // Store only the minimal fingerprint identifier to reduce privacy risk
+            localStorage.setItem(storageKey, JSON.stringify({ result: deviceId }));
         } catch(e) {
              console.warn("LocalStorage set failed", e);
         }

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Telemetry } from '../src/core/Telemetry';
 import { TelemetryConfig } from '../src/core/TelemetryConfig';
-import { DeviceService } from '../src/services/DeviceService';
 
 // Mock DeviceService
 vi.mock('../src/services/DeviceService', () => {
