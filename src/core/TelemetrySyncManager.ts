@@ -15,10 +15,6 @@ export class TelemetrySyncManager {
 
   constructor(config: TelemetryConfig) {
     this._config = config;
-    // Listen on document to match where events are dispatched
-    if (typeof document !== 'undefined' && document.addEventListener) {
-      document.addEventListener('TelemetryEvent', this.sendTelemetry.bind(this));
-    }
   }
 
   public updateConfig(config: TelemetryConfig) {
