@@ -92,7 +92,7 @@ $t.log({
 ## Configuration
 
 | Property | Description | Default |
-|Data | --- | --- |
+| --- | --- | --- |
 | `pdata` | Producer Data (Required) | `{ id: "in.ekstep", ver: "1.0" }` |
 | `env` | Environment (Required) | `"contentplayer"` |
 | `channel` | Channel ID (Required) | `"in.ekstep"` |

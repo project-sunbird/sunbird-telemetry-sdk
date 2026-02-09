@@ -43,13 +43,13 @@ export class Telemetry {
       return this._config;
   }
 
-  public initialize(config: TelemetryConfig) {
+  public initialize(config: Partial<TelemetryConfig>) {
     if (this._initialized) {
       console.warn('Telemetry is already initialized');
       return;
     }
 
-    this._config = { ...defaultConfig, ...config };
+    this._config = { ...defaultConfig, ...config } as TelemetryConfig;
 
     // Validate batchsize
     if (this._config.batchsize && this._config.batchsize > 1000) {
@@ -76,9 +76,9 @@ export class Telemetry {
     }
   }
 
-  public async start(config: TelemetryConfig, contentId: string, contentVer: string, data: any, options?: any) {
+  public async start(config: Partial<TelemetryConfig>, contentId: string, contentVer: string, data: any, options?: any) {
     if (!this._initialized) {
-        this.initialize(config);
+        this.initialize(config as TelemetryConfig);
     }
 
     if (contentId && contentVer) {
@@ -191,7 +191,9 @@ export class Telemetry {
 
   public metrics(data: any, options?: any) {
     this.updateValues(options);
-    this._dispatch(this.getEvent('METRICS', data));
+    // Note: there is no dedicated METRICS schema; dispatch as a generic LOG event
+    // so that validation succeeds and events are not dropped.
+    this._dispatch(this.getEvent('LOG', data));
   }
 
   public exdata(data: any, options?: any) {
@@ -221,8 +223,8 @@ export class Telemetry {
     this._currentTags = tags || [];
   }
 
-  public syncEvents(async = true) {
-      this._syncManager.syncEvents(async);
+  public syncEvents() {
+      this._syncManager.syncEvents();
   }
 
   private updateValues(options: any) {

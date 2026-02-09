@@ -9,8 +9,9 @@ export class TelemetrySyncManager {
 
   constructor(config: TelemetryConfig) {
     this._config = config;
-    if (typeof window !== 'undefined' && window.addEventListener) {
-      window.addEventListener('TelemetryEvent', this.sendTelemetry.bind(this));
+    // Listen on document to match where events are dispatched
+    if (typeof document !== 'undefined' && document.addEventListener) {
+      document.addEventListener('TelemetryEvent', this.sendTelemetry.bind(this));
     }
   }
 
@@ -30,13 +31,15 @@ export class TelemetrySyncManager {
     }
   }
 
-  public async syncEvents(async = true) {
+  public async syncEvents() {
     const batchSize = this._config.batchsize || 20;
-    const events = this._teleData.splice(0, batchSize);
-
-    if (!events.length) {
+    
+    if (!this._teleData.length) {
       return;
     }
+
+    // Get events but don't remove them yet (only remove after successful send)
+    const events = this._teleData.slice(0, batchSize);
 
     const telemetryObj = {
       id: 'api.sunbird.telemetry',
@@ -56,17 +59,42 @@ export class TelemetrySyncManager {
     headers['x-device-id'] = this._config.did || '';
     headers['x-channel-id'] = this._config.channel;
 
-    const fullPath = (this._config.host || '') + (this._config.endpoint || '');
+    const host = this._config.host || '';
+    const endpoint = this._config.endpoint || '';
+    
+    // Legacy SDK included '/action' slug by default
+    // Check if it's already in the host or endpoint to avoid duplication
+    const hasActionInHost = host.endsWith('/action') || host.includes('/action/');
+    const hasActionInEndpoint = endpoint.startsWith('/action');
+    const actionSlug = hasActionInHost || hasActionInEndpoint ? '' : '/action';
+    
+    const fullPath = host + actionSlug + endpoint;
 
     try {
       if (this._config.dispatcher && typeof this._config.dispatcher.dispatch === 'function') {
         this._config.dispatcher.dispatch(telemetryObj);
+        // Only remove from queue after successful dispatch
+        this._teleData.splice(0, batchSize);
       } else {
         await Dispatcher.dispatch(fullPath, telemetryObj, headers);
+        // Only remove from queue after successful dispatch
+        this._teleData.splice(0, batchSize);
       }
     } catch (error) {
       console.error('Telemetry Sync Failed', error);
+      // Re-queue failed events back to the front with a bounded retry
+      this._handleFailedBatch(telemetryObj);
+    }
+  }
+
+  private _handleFailedBatch(telemetryObj: any) {
+    // Add to failed batch with a maximum size cap to prevent unbounded growth
+    const MAX_FAILED_BATCH_SIZE = 100;
+    
+    if (this._failedBatch.length < MAX_FAILED_BATCH_SIZE) {
       this._failedBatch.push(telemetryObj);
+    } else {
+      console.warn('Failed batch buffer is full. Dropping telemetry events.');
     }
   }
 }
