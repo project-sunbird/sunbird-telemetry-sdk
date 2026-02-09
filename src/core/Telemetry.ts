@@ -78,7 +78,7 @@ export class Telemetry {
 
   public async start(config: Partial<TelemetryConfig>, contentId: string, contentVer: string, data: any, options?: any) {
     if (!this._initialized) {
-        this.initialize(config as TelemetryConfig);
+        this.initialize(config);
     }
 
     if (contentId && contentVer) {
