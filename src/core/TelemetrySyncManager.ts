@@ -40,8 +40,8 @@ export class TelemetrySyncManager {
       return;
     }
 
-    // Get events but don't remove them yet (only remove after successful send)
-    const events = this._teleData.slice(0, batchSize);
+    // Get events and remove them from the main queue immediately to prevent duplicate processing
+    const events = this._teleData.splice(0, batchSize);
 
     const telemetryObj = {
       id: 'api.sunbird.telemetry',
@@ -68,14 +68,10 @@ export class TelemetrySyncManager {
     try {
       if (this._config.dispatcher && typeof this._config.dispatcher.dispatch === 'function') {
         this._config.dispatcher.dispatch(telemetryObj);
-        // Only remove from queue after successful dispatch
-        this._teleData.splice(0, batchSize);
         // Reset retry attempts on success
         this._retryAttempts = 0;
       } else {
         await Dispatcher.dispatch(fullPath, telemetryObj, headers);
-        // Only remove from queue after successful dispatch
-        this._teleData.splice(0, batchSize);
         // Reset retry attempts on success
         this._retryAttempts = 0;
       }

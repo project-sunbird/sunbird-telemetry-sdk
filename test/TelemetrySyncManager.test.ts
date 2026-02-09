@@ -109,12 +109,14 @@ describe('TelemetrySyncManager', () => {
         expect(headers['x-channel-id']).toBe('test-channel');
     });
 
-    it('should not remove events from queue if dispatch fails', async () => {
+    it('should move failed events to failed batch and retry from there', async () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
         mockDispatch.mockRejectedValue(new Error('Network error'));
 
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
+        // 1. Send an event that fails dispatch
         syncManager.sendTelemetry({
             eid: 'END',
             edata: { type: 'app' },
@@ -125,22 +127,22 @@ describe('TelemetrySyncManager', () => {
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
 
-        // Mock success for next attempt
+        // 2. Mock success for the retry
         mockDispatch.mockResolvedValue({});
 
-        // Add another END event to trigger sync again immediately
-        syncManager.sendTelemetry({
-            eid: 'END',
-            edata: { type: 'app' },
-            context: {},
-        });
+        // 3. Trigger a new sync (e.g. new event) - this logic should NOT resend the first event
+        // because it should have been moved to failed batch.
+        // Wait for the retry timeout (1000ms)
+        await vi.advanceTimersByTimeAsync(1000);
 
-        await flushPromises();
-
-        // Should have been called twice total (once failed, once succeeded)
+        // The retry logic should call dispatch with the original batch
         expect(mockDispatch).toHaveBeenCalledTimes(2);
+        const retryCall = mockDispatch.mock.calls[1];
+        expect(retryCall[1].events).toHaveLength(1);
+        expect(retryCall[1].events[0].eid).toBe('END');
 
         consoleErrorSpy.mockRestore();
+        consoleLogSpy.mockRestore();
     });
 
     it('should handle custom dispatcher if provided', async () => {
