@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TelemetrySyncManager } from '../src/core/TelemetrySyncManager';
 import { TelemetryConfig } from '../src/core/TelemetryConfig';
 import { Dispatcher } from '../src/utils/Dispatcher';
@@ -17,6 +17,7 @@ describe('TelemetrySyncManager', () => {
     let testConfig: TelemetryConfig;
 
     beforeEach(() => {
+        vi.useFakeTimers();
         testConfig = {
             pdata: { id: 'test-app', ver: '1.0' },
             env: 'test',
@@ -29,6 +30,19 @@ describe('TelemetrySyncManager', () => {
         syncManager = new TelemetrySyncManager(testConfig);
         vi.clearAllMocks();
     });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    /**
+     * Helper to flush pending promises and microtasks.
+     * Since Dispatcher.dispatch is mocked as async, we need to wait for the promise chain.
+     * vi.runAllTicks() or simple await can work, but advanceTimersByTimeAsync is robust.
+     */
+    const flushPromises = async () => {
+        await vi.advanceTimersByTimeAsync(1);
+    };
 
     it('should batch and sync events when batchsize is reached', async () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
@@ -43,8 +57,8 @@ describe('TelemetrySyncManager', () => {
             });
         }
 
-        // Wait for async sync to complete
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Allow async syncEvents to proceed
+        await flushPromises();
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const callArgs = mockDispatch.mock.calls[0];
@@ -63,8 +77,7 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        // Wait for async sync to complete
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const callArgs = mockDispatch.mock.calls[0];
@@ -86,7 +99,7 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const headers = mockDispatch.mock.calls[0][2];
@@ -100,7 +113,6 @@ describe('TelemetrySyncManager', () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
         mockDispatch.mockRejectedValue(new Error('Network error'));
 
-        // Spy on console.error to suppress error output in test
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
         syncManager.sendTelemetry({
@@ -109,22 +121,21 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
 
-        // Events should still be in the queue (can be tested by checking _teleData length)
-        // Since _teleData is private, we can verify by triggering another sync
+        // Mock success for next attempt
         mockDispatch.mockResolvedValue({});
 
-        // Add another END event to trigger sync again
+        // Add another END event to trigger sync again immediately
         syncManager.sendTelemetry({
             eid: 'END',
             edata: { type: 'app' },
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         // Should have been called twice total (once failed, once succeeded)
         expect(mockDispatch).toHaveBeenCalledTimes(2);
@@ -143,7 +154,7 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         expect(customDispatch).toHaveBeenCalledTimes(1);
         expect(Dispatcher.dispatch).not.toHaveBeenCalled();
@@ -159,7 +170,7 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const url = mockDispatch.mock.calls[0][0];
@@ -179,7 +190,7 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await flushPromises();
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const url = mockDispatch.mock.calls[0][0];
@@ -194,21 +205,24 @@ describe('TelemetrySyncManager', () => {
         const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-        // Add more than MAX_FAILED_BATCH_SIZE (10000) END events
-        // Testing with a smaller number for performance
+        // Add 50 failed attempts
         for (let i = 0; i < 50; i++) {
             syncManager.sendTelemetry({
                 eid: 'END',
                 edata: { type: 'app', iteration: i },
                 context: {},
             });
-            await new Promise(resolve => setTimeout(resolve, 5));
+            // Flush microtasks without advancing timers significantly (retry hasn't fired yet)
+            await flushPromises();
         }
 
-        // Wait for retries to be scheduled
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // At this point, we have failed batches queued and retries scheduled.
+        // We just want to verify logging, we don't need to wait for 100ms real time.
+        // But we do need to advance timers to let the log happen if it's async (it is inside setTimeout)
 
-        // Should have logged retry attempts with exponential backoff
+        // Advance time just enough to trigger the first scheduled retry log
+        await vi.advanceTimersByTimeAsync(1000);
+
         expect(consoleLogSpy).toHaveBeenCalledWith(
             expect.stringContaining('Retry scheduled')
         );
@@ -232,19 +246,34 @@ describe('TelemetrySyncManager', () => {
             context: {},
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Let the initial sync fail and schedule retry
+        await flushPromises();
 
-        // Check that exponential backoff is being used
-        const logCalls = consoleLogSpy.mock.calls;
-        const retryMessages = logCalls.filter(call =>
-            call[0] && call[0].includes('Retry scheduled')
+        // Check logs - first retry should be scheduled
+        // Attempt 1: 1000ms delay
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+            expect.stringMatching(/Retry scheduled in 1000ms/)
         );
+        consoleLogSpy.mockClear();
 
-        expect(retryMessages.length).toBeGreaterThan(0);
-        // First retry should use exponential backoff (starting at 1000ms for attempt 1)
-        const firstRetry = retryMessages[0][0];
-        expect(firstRetry).toMatch(/Retry scheduled in \d+ms \(attempt \d+\)/);
-        expect(firstRetry).toContain('ms');
+        // Advance time to trigger the first retry (1000ms)
+        // This execution will fail (mockRejectedValue) and schedule Attempt 2
+        await vi.advanceTimersByTimeAsync(1000);
+
+        // Verify Attempt 2 scheduling: 2000ms delay
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+            expect.stringMatching(/Retry scheduled in 2000ms/)
+        );
+        consoleLogSpy.mockClear();
+
+        // Advance time to trigger second retry (2000ms)
+        // This execution will fail and schedule Attempt 3
+        await vi.advanceTimersByTimeAsync(2000);
+
+        // Verify Attempt 3 scheduling: 4000ms delay
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+            expect.stringMatching(/Retry scheduled in 4000ms/)
+        );
 
         consoleLogSpy.mockRestore();
         consoleErrorSpy.mockRestore();
