@@ -18,8 +18,8 @@ export class Validator {
     const validate = this.ajv.getSchema(schemaKey);
 
     if (!validate) {
-      console.warn(`Schema not found for event: ${event.eid}. Validation skipped.`);
-      return true;
+      console.error(`Schema not found for event: ${event.eid}`);
+      return false;
     }
 
     const valid = validate(event);
