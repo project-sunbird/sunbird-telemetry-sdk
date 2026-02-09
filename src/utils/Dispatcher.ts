@@ -4,7 +4,7 @@ export class Dispatcher {
       if (typeof fetch === 'undefined') {
         throw new Error('fetch is not available. Node.js 18+ is required for native fetch support.');
       }
-      
+
       try {
         const response = await fetch(url, {
           method: 'POST',

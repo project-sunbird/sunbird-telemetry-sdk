@@ -25,7 +25,7 @@ describe('TelemetrySyncManager', () => {
             host: 'https://test.api.com',
             endpoint: '/telemetry'
         };
-        
+
         syncManager = new TelemetrySyncManager(testConfig);
         vi.clearAllMocks();
     });
@@ -112,11 +112,11 @@ describe('TelemetrySyncManager', () => {
         await new Promise(resolve => setTimeout(resolve, 100));
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
-        
+
         // Events should still be in the queue (can be tested by checking _teleData length)
         // Since _teleData is private, we can verify by triggering another sync
         mockDispatch.mockResolvedValue({});
-        
+
         // Add another END event to trigger sync again
         syncManager.sendTelemetry({
             eid: 'END',
@@ -236,10 +236,10 @@ describe('TelemetrySyncManager', () => {
 
         // Check that exponential backoff is being used
         const logCalls = consoleLogSpy.mock.calls;
-        const retryMessages = logCalls.filter(call => 
+        const retryMessages = logCalls.filter(call =>
             call[0] && call[0].includes('Retry scheduled')
         );
-        
+
         expect(retryMessages.length).toBeGreaterThan(0);
         // First retry should use exponential backoff (starting at 1000ms for attempt 1)
         const firstRetry = retryMessages[0][0];

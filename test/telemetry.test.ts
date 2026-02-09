@@ -209,7 +209,8 @@ describe('Telemetry SDK', () => {
     telemetry.metrics({ metric1: 100 });
     expect(dispatchSpy).toHaveBeenCalled();
     const event = dispatchSpy.mock.calls[0][0];
-    expect(event.eid).toBe('METRICS');
+    // Mapped to LOG because METRICS schema is missing
+    expect(event.eid).toBe('LOG');
   });
 
   it('should generate EXDATA event', () => {
