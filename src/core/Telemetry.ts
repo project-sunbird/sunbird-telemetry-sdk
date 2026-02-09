@@ -232,7 +232,7 @@ export class Telemetry {
   }
 
   public resetTags(tags: any[]) {
-    this._currentTags = tags || [];
+    this._currentTags = Array.isArray(tags) ? tags : [];
   }
 
   public syncEvents() {
@@ -244,12 +244,17 @@ export class Telemetry {
       options.context && (this._currentContext = options.context);
       options.object && (this._currentObject = options.object);
       options.actor && (this._currentActor = options.actor);
-      options.tags && (this._currentTags = options.tags);
+      if (options.tags) {
+        this._currentTags = Array.isArray(options.tags) ? options.tags : [];
+      }
       options.runningEnv && (this._config.runningEnv = options.runningEnv);
     }
   }
 
   private getEvent(eventId: string, data: any) {
+    const configTags = Array.isArray(this._config.tags) ? this._config.tags : [];
+    const currentTags = Array.isArray(this._currentTags) ? this._currentTags : [];
+
     const event: any = {
       eid: eventId,
       ets: Utils.getEpochTime() + (this._config.timeDiff || 0) * 1000,
@@ -269,8 +274,8 @@ export class Telemetry {
         ...this._currentObject
       },
       tags: [
-        ...(this._config.tags || []),
-        ...this._currentTags
+        ...configTags,
+        ...currentTags
       ],
       edata: data
     };

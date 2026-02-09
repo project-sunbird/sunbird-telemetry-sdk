@@ -280,4 +280,18 @@ describe('Telemetry SDK', () => {
     // ver should be default (1.0), not undefined
     expect(event.context.pdata.ver).toBe('1.0');
   });
+
+  it('should handle non-array tags gracefully', async () => {
+    // initialize first to push start event
+    await telemetry.start({}, 'c1', '1.0', { type: 'app' });
+    const dispatchSpy = vi.spyOn(telemetry as any, '_dispatch');
+
+    // Pass object instead of array
+    telemetry.interact({ type: 'CLICK', id: 'btn' }, { tags: {} as any });
+
+    expect(dispatchSpy).toHaveBeenCalled();
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(Array.isArray(event.tags)).toBe(true);
+    expect(event.tags).toHaveLength(0);
+  });
 });
