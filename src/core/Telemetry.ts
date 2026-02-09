@@ -203,9 +203,7 @@ export class Telemetry {
 
   public metrics(data: any, options?: any) {
     this.updateValues(options);
-    // Note: there is no dedicated METRICS schema; dispatch as a generic LOG event
-    // so that validation succeeds and events are not dropped.
-    this._dispatch(this.getEvent('LOG', data));
+    this._dispatch(this.getEvent('METRICS', data));
   }
 
   public exdata(data: any, options?: any) {
