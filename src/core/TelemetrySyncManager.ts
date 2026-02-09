@@ -67,10 +67,7 @@ export class TelemetrySyncManager {
 
     try {
       if (this._config.dispatcher && typeof this._config.dispatcher.dispatch === 'function') {
-        // For backward compatibility with the legacy SDK, dispatch individual events
-        for (const event of events) {
-          this._config.dispatcher.dispatch(event);
-        }
+        this._config.dispatcher.dispatch(telemetryObj);
         // Reset retry attempts on success
         this._retryAttempts = 0;
       } else {
