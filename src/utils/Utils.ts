@@ -6,7 +6,7 @@ export class Utils {
   }
 
   static generateUUID(): string {
-    // Use crypto.randomUUID() when available (Browser + Node 16.17+/18+)
+    // Use crypto.randomUUID() when available (Browser + Node 18+)
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
       return crypto.randomUUID();
     }
