@@ -229,4 +229,34 @@ describe('Telemetry SDK', () => {
     expect(event.eid).toBe('SUMMARY');
     expect(event.edata.timespent).toBe(1000);
   });
+
+  it('should handle undefined data gracefully in start', async () => {
+    const dispatchSpy = vi.spyOn(telemetry as any, '_dispatch');
+    await telemetry.start({}, 'c1', '1.0', undefined); // Should not throw
+    expect(dispatchSpy).toHaveBeenCalled();
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.eid).toBe('START');
+    expect(event.edata).toBeDefined();
+  });
+
+  it('should handle undefined data gracefully in end', async () => {
+    // initialize first to push start event
+    await telemetry.start({}, 'c1', '1.0', { type: 'app' });
+    const dispatchSpy = vi.spyOn(telemetry as any, '_dispatch');
+
+    telemetry.end(undefined); // Should not throw
+
+    expect(dispatchSpy).toHaveBeenCalled();
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.eid).toBe('END');
+    expect(event.edata.duration).toBeGreaterThanOrEqual(0);
+  });
+
+  it('should handle undefined data gracefully in feedback', () => {
+    const dispatchSpy = vi.spyOn(telemetry as any, '_dispatch');
+    telemetry.feedback(undefined); // Should not throw
+    expect(dispatchSpy).toHaveBeenCalled();
+    const event = dispatchSpy.mock.calls[0][0];
+    expect(event.eid).toBe('FEEDBACK');
+  });
 });

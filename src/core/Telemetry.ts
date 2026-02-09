@@ -93,6 +93,10 @@ export class Telemetry {
         this._config.did = did; // Update main config as well
     }
 
+    if (!data) {
+        data = {};
+    }
+
     data.duration = data.duration || 0;
 
     // Add uaspec if not present
@@ -111,6 +115,11 @@ export class Telemetry {
       const startEvent = this._startData.pop();
       const startTime = startEvent.ets;
       const currentTime = Utils.getEpochTime() + (this._config.timeDiff || 0) * 1000;
+
+      if (!data) {
+          data = {};
+      }
+
       data.duration = parseFloat(((currentTime - startTime) * 0.001).toFixed(2));
 
       this.updateValues(options);
@@ -150,6 +159,9 @@ export class Telemetry {
   }
 
   public feedback(data: any, options?: any) {
+    if (!data) {
+        data = {};
+    }
     const eksData = {
         rating: data.rating,
         commentid: data.commentid || '',
