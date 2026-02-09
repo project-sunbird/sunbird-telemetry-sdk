@@ -107,7 +107,7 @@ $t.log({
 | `dispatcher` | Custom dispatcher object `{ dispatch: (event) => {} }` | `undefined` |
 
 **Note on Validation:**
-If `enableValidation` is set to `true`, the library attempts to validate events against the built-in Telemetry V3 schema. However, if a specific event schema (e.g., for `METRICS`) is missing, the validation step will be skipped with a warning, and the event will still be dispatched.
+If `enableValidation` is set to `true`, the library validates events against the built-in Telemetry V3 schema. Events with missing or invalid schemas will be dropped.
 
 ## Development
 
