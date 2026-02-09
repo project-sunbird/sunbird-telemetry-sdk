@@ -1,5 +1,5 @@
 import Ajv from 'ajv';
-import { telemetrySchema } from '../schema/telemetry-spec';
+import telemetrySchema from '../schema/telemetry-spec.json';
 
 export class Validator {
   private ajv: Ajv;
