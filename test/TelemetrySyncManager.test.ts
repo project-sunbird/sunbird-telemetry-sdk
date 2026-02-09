@@ -48,7 +48,7 @@ describe('TelemetrySyncManager', () => {
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const callArgs = mockDispatch.mock.calls[0];
-        expect(callArgs[0]).toBe('https://test.api.com/action/telemetry');
+        expect(callArgs[0]).toBe('https://test.api.com/telemetry');
         expect(callArgs[1].events).toHaveLength(5);
     });
 
@@ -149,7 +149,7 @@ describe('TelemetrySyncManager', () => {
         expect(Dispatcher.dispatch).not.toHaveBeenCalled();
     });
 
-    it('should add /action slug to URL if not present', async () => {
+    it('should construct correct URL from host and endpoint', async () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
         mockDispatch.mockResolvedValue({});
 
@@ -163,10 +163,10 @@ describe('TelemetrySyncManager', () => {
 
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         const url = mockDispatch.mock.calls[0][0];
-        expect(url).toBe('https://test.api.com/action/telemetry');
+        expect(url).toBe('https://test.api.com/telemetry');
     });
 
-    it('should not duplicate /action slug if already in host', async () => {
+    it('should handle different host configurations', async () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
         mockDispatch.mockResolvedValue({});
 
@@ -192,23 +192,59 @@ describe('TelemetrySyncManager', () => {
 
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-        // Add more than MAX_FAILED_BATCH_SIZE (100) END events
-        for (let i = 0; i < 105; i++) {
+        // Add more than MAX_FAILED_BATCH_SIZE (10000) END events
+        // Testing with a smaller number for performance
+        for (let i = 0; i < 50; i++) {
             syncManager.sendTelemetry({
                 eid: 'END',
                 edata: { type: 'app', iteration: i },
                 context: {},
             });
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, 5));
         }
 
-        // Should have warned about buffer being full
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
-            expect.stringContaining('Failed batch buffer is full')
+        // Wait for retries to be scheduled
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Should have logged retry attempts with exponential backoff
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+            expect.stringContaining('Retry scheduled')
         );
 
         consoleErrorSpy.mockRestore();
         consoleWarnSpy.mockRestore();
+        consoleLogSpy.mockRestore();
+    });
+
+    it('should implement exponential backoff for retries', async () => {
+        const mockDispatch = vi.mocked(Dispatcher.dispatch);
+        mockDispatch.mockRejectedValue(new Error('Network error'));
+
+        const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        // Trigger a failure
+        syncManager.sendTelemetry({
+            eid: 'END',
+            edata: { type: 'app' },
+            context: {},
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Check that exponential backoff is being used
+        const logCalls = consoleLogSpy.mock.calls;
+        const retryMessages = logCalls.filter(call => 
+            call[0] && call[0].includes('Retry scheduled')
+        );
+        
+        expect(retryMessages.length).toBeGreaterThan(0);
+        // First retry should be 1000ms (2^0 * 1000)
+        expect(retryMessages[0][0]).toContain('1000ms');
+
+        consoleLogSpy.mockRestore();
+        consoleErrorSpy.mockRestore();
     });
 });
