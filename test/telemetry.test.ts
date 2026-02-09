@@ -259,4 +259,25 @@ describe('Telemetry SDK', () => {
     const event = dispatchSpy.mock.calls[0][0];
     expect(event.eid).toBe('FEEDBACK');
   });
+
+  it('should preserve default pdata fields when initialized with partial pdata', async () => {
+    // Reset instance to clear previous config
+    (telemetry as any)._initialized = false;
+
+    // Initialize with partial pdata (missing ver)
+    telemetry.initialize({
+      pdata: { id: 'custom-app' } as any
+    });
+
+    const dispatchSpy = vi.spyOn(telemetry as any, '_dispatch');
+    await telemetry.start({}, 'c1', '1.0', {});
+
+    expect(dispatchSpy).toHaveBeenCalled();
+    const event = dispatchSpy.mock.calls[0][0];
+
+    // id should be custom
+    expect(event.context.pdata.id).toBe('custom-app');
+    // ver should be default (1.0), not undefined
+    expect(event.context.pdata.ver).toBe('1.0');
+  });
 });
