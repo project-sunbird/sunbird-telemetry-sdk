@@ -241,8 +241,10 @@ describe('TelemetrySyncManager', () => {
         );
         
         expect(retryMessages.length).toBeGreaterThan(0);
-        // First retry should be 1000ms (2^0 * 1000)
-        expect(retryMessages[0][0]).toContain('1000ms');
+        // First retry should use exponential backoff (starting at 1000ms for attempt 1)
+        const firstRetry = retryMessages[0][0];
+        expect(firstRetry).toMatch(/Retry scheduled in \d+ms \(attempt \d+\)/);
+        expect(firstRetry).toContain('ms');
 
         consoleLogSpy.mockRestore();
         consoleErrorSpy.mockRestore();

@@ -8,6 +8,10 @@ export class TelemetrySyncManager {
   private _config: TelemetryConfig;
   private _retryAttempts = 0;
   private _retryTimeout: any = null;
+  
+  private static readonly MAX_FAILED_BATCH_SIZE = 10000;
+  private static readonly RETRY_SUCCESS_DELAY_MS = 1000;
+  private static readonly MAX_BACKOFF_DELAY_MS = 60000;
 
   constructor(config: TelemetryConfig) {
     this._config = config;
@@ -88,14 +92,15 @@ export class TelemetrySyncManager {
 
   private _handleFailedBatch(telemetryObj: any) {
     // Add to failed batch with a maximum size cap to prevent unbounded growth
-    const MAX_FAILED_BATCH_SIZE = 10000;
-    
-    if (this._failedBatch.length < MAX_FAILED_BATCH_SIZE) {
+    if (this._failedBatch.length < TelemetrySyncManager.MAX_FAILED_BATCH_SIZE) {
       this._failedBatch.push(telemetryObj);
       
       // Implement exponential backoff for retry
       this._retryAttempts++;
-      const backoffDelay = Math.min(1000 * Math.pow(2, this._retryAttempts - 1), 60000); // Max 60 seconds
+      const backoffDelay = Math.min(
+        1000 * Math.pow(2, this._retryAttempts - 1), 
+        TelemetrySyncManager.MAX_BACKOFF_DELAY_MS
+      );
       
       // Clear any existing retry timeout
       if (this._retryTimeout) {
@@ -136,28 +141,46 @@ export class TelemetrySyncManager {
     try {
       if (this._config.dispatcher && typeof this._config.dispatcher.dispatch === 'function') {
         this._config.dispatcher.dispatch(telemetryObj);
-        // Reset retry attempts on success
-        this._retryAttempts = 0;
         console.log('Retry successful');
       } else {
         await Dispatcher.dispatch(fullPath, telemetryObj, headers);
-        // Reset retry attempts on success
-        this._retryAttempts = 0;
         console.log('Retry successful');
       }
       
-      // If there are more failed batches, retry them
+      // Reset retry attempts when successfully clearing the queue
+      if (this._failedBatch.length === 0) {
+        this._retryAttempts = 0;
+      }
+      
+      // If there are more failed batches, retry them with a short delay
       if (this._failedBatch.length > 0) {
         this._retryTimeout = setTimeout(() => {
           this._retryFailedBatch();
-        }, 1000); // 1 second between successful retries
+        }, TelemetrySyncManager.RETRY_SUCCESS_DELAY_MS);
       }
     } catch (error) {
       console.error('Retry failed', error);
-      // Put the batch back in the queue
+      // Put the batch back at the front of the queue (don't call _handleFailedBatch to avoid duplicate)
       this._failedBatch.unshift(telemetryObj);
-      // Schedule another retry with exponential backoff
-      this._handleFailedBatch(telemetryObj);
+      
+      // Increment retry attempts and schedule with exponential backoff
+      this._retryAttempts++;
+      const backoffDelay = Math.min(
+        1000 * Math.pow(2, this._retryAttempts - 1), 
+        TelemetrySyncManager.MAX_BACKOFF_DELAY_MS
+      );
+      
+      // Clear any existing retry timeout
+      if (this._retryTimeout) {
+        clearTimeout(this._retryTimeout);
+      }
+      
+      // Schedule retry with exponential backoff
+      this._retryTimeout = setTimeout(() => {
+        this._retryFailedBatch();
+      }, backoffDelay);
+      
+      console.log(`Retry scheduled in ${backoffDelay}ms (attempt ${this._retryAttempts})`);
     }
   }
 }
