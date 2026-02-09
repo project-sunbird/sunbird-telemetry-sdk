@@ -209,7 +209,6 @@ describe('Telemetry SDK', () => {
     telemetry.metrics({ metric1: 100 });
     expect(dispatchSpy).toHaveBeenCalled();
     const event = dispatchSpy.mock.calls[0][0];
-    // Validation skipped for missing schema
     expect(event.eid).toBe('METRICS');
   });
 
