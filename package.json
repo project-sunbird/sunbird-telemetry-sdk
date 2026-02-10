@@ -27,7 +27,7 @@
     "telemetry",
     "sunbird"
   ],
-  "author": "Manjunath Davanam <manjunathd@ilimi.in>",
+  "author": "Sunbird",
   "license": "MIT",
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
