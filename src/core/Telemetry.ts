@@ -72,9 +72,9 @@ export class Telemetry {
 
     // Initialize global context
     // Deep merge pdata to ensure required fields (id, ver) are present even if config provides partial pdata
-    const defaultPData = { id: 'in.ekstep', ver: '1.0', pid: '' };
+    const defaultPData = { id: 'sunbird', ver: '1.0', pid: '' };
     this._globalContext = {
-      channel: this._config.channel || 'in.ekstep',
+      channel: this._config.channel || 'sunbird',
       pdata: { ...defaultPData, ...this._config.pdata },
       env: this._config.env || 'contentplayer',
       sid: this._config.sid || '',
