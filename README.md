@@ -1,5 +1,5 @@
 
-# Sunbird Telemetry SDK (v4.0.0)
+# Sunbird Telemetry SDK (v2.x.x)
 
 A robust, isomorphic JavaScript/TypeScript library for generating and syncing Sunbird telemetry events. This version is a complete rewrite using modern TypeScript, replacing legacy dependencies with standard NPM packages.
 
@@ -124,7 +124,7 @@ If `enableValidation` is set to `true`, the library validates events against the
 - `src/utils`: Utilities (`Dispatcher`, `Utils`, `DeviceInfo`).
 - `src/schema`: Telemetry JSON schemas.
 
-## Migration from v3.x
+## Migration from v1.x
 
 1.  **Remove jQuery**: Ensure your application handles network requests if you were relying on the SDK's jQuery dependency. The SDK now uses `fetch`.
 2.  **Fingerprinting**: The library now uses `@fingerprintjs/fingerprintjs`. This might generate different device IDs than the old library. However, `localStorage` caching is implemented to maintain the ID once generated.
