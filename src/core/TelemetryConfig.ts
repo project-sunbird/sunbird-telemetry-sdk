@@ -21,9 +21,9 @@ export interface TelemetryConfig {
 }
 
 export const defaultConfig: Partial<TelemetryConfig> = {
-  pdata: { id: 'in.ekstep', ver: '1.0' },
+  pdata: { id: 'sunbird', ver: '1.0' },
   env: 'contentplayer',
-  channel: 'in.ekstep',
+  channel: 'sunbird',
   uid: 'anonymous',
   authtoken: '',
   batchsize: 20,
