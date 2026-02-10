@@ -49,8 +49,18 @@ export class Telemetry {
       return;
     }
 
-    this._config = { ...defaultConfig, ...config } as TelemetryConfig;
+    // Start with a shallow merge, then deep-merge nested objects that must retain defaults.
+    const mergedConfig = { ...defaultConfig, ...config } as TelemetryConfig;
 
+    // Deep-merge pdata to avoid dropping default fields (e.g., ver) when a partial pdata is provided.
+    if ((defaultConfig as any).pdata || (config as any)?.pdata) {
+      (mergedConfig as any).pdata = {
+        ...(defaultConfig as any).pdata,
+        ...(config as any)?.pdata,
+      };
+    }
+
+    this._config = mergedConfig;
     // Validate batchsize
     if (this._config.batchsize && this._config.batchsize > 1000) {
       this._config.batchsize = 1000;
