@@ -86,23 +86,25 @@ describe('Telemetry SDK', () => {
 
      // Mock time
      vi.useFakeTimers();
-     const now = new Date().getTime();
-     vi.setSystemTime(now);
+     try {
+         const now = new Date().getTime();
+         vi.setSystemTime(now);
 
-     await telemetry.start({}, 'c1', '1.0', { type: 'app' });
+         await telemetry.start({}, 'c1', '1.0', { type: 'app' });
 
-     // Advance time by 5 seconds
-     vi.setSystemTime(now + 5000);
+         // Advance time by 5 seconds
+         vi.setSystemTime(now + 5000);
 
-     telemetry.end({ type: 'app' });
+         telemetry.end({ type: 'app' });
 
-     expect(dispatchSpy).toHaveBeenCalledTimes(2); // START + END
-     const endEvent = dispatchSpy.mock.calls[1][0];
+         expect(dispatchSpy).toHaveBeenCalledTimes(2); // START + END
+         const endEvent = dispatchSpy.mock.calls[1][0];
 
-     expect(endEvent.eid).toBe('END');
-     expect(endEvent.edata.duration).toBe(5); // 5 seconds
-
-     vi.useRealTimers();
+         expect(endEvent.eid).toBe('END');
+         expect(endEvent.edata.duration).toBe(5); // 5 seconds
+     } finally {
+         vi.useRealTimers();
+     }
   });
 
   it('should generate IMPRESSION event', () => {
