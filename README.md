@@ -1,5 +1,5 @@
 
-# Sunbird Telemetry SDK (v4.0.0)
+# Sunbird Telemetry SDK (v2.x.x)
 
 A robust, isomorphic JavaScript/TypeScript library for generating and syncing Sunbird telemetry events. This version is a complete rewrite using modern TypeScript, replacing legacy dependencies with standard NPM packages.
 
