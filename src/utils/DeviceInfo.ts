@@ -16,10 +16,10 @@ export class DeviceInfo {
     const result = parser.getResult();
 
     return {
-      agent: result.browser.name,
-      ver: result.browser.version,
-      system: result.os.name,
-      platform: result.os.version,
+      agent: result.browser.name ?? '',
+      ver: result.browser.version ?? '',
+      system: result.os.name ?? '',
+      platform: result.os.version ?? '',
       raw: navigator.userAgent
     };
   }
