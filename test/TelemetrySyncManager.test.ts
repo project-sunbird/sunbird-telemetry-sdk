@@ -162,6 +162,40 @@ describe('TelemetrySyncManager', () => {
         expect(Dispatcher.dispatch).not.toHaveBeenCalled();
     });
 
+    it('should retry async custom dispatcher failures without dropping failed batch', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+        const customDispatch = vi
+            .fn()
+            .mockRejectedValueOnce(new Error('initial async dispatcher failed'))
+            .mockRejectedValueOnce(new Error('retry async dispatcher failed'));
+
+        testConfig.dispatcher = { dispatch: customDispatch };
+        syncManager.updateConfig(testConfig);
+
+        syncManager.sendTelemetry({
+            eid: 'END',
+            edata: { type: 'app' },
+            context: {},
+        });
+
+        await flushPromises();
+
+        expect(customDispatch).toHaveBeenCalledTimes(1);
+        expect((syncManager as any)._failedBatch).toHaveLength(1);
+        expect((syncManager as any)._failedBatch[0].events[0].eid).toBe('END');
+
+        await vi.advanceTimersByTimeAsync(1000);
+
+        expect(customDispatch).toHaveBeenCalledTimes(2);
+        expect((syncManager as any)._failedBatch).toHaveLength(1);
+        expect((syncManager as any)._failedBatch[0].events[0].eid).toBe('END');
+
+        consoleErrorSpy.mockRestore();
+        consoleLogSpy.mockRestore();
+    });
+
     it('should construct correct URL from host and endpoint', async () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
         mockDispatch.mockResolvedValue({});
