@@ -12,7 +12,7 @@ export interface TelemetryConfig {
   endpoint?: string;
   tags?: string[];
   cdata?: Array<{ type: string; id: string }>;
-  dispatcher?: { dispatch: (event: any) => void };
+  dispatcher?: { dispatch: (event: any) => void | Promise<unknown> };
   enableValidation?: boolean;
   timeDiff?: number;
   runningEnv?: string;

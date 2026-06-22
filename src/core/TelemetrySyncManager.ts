@@ -67,7 +67,7 @@ export class TelemetrySyncManager {
 
     try {
       if (this._config.dispatcher && typeof this._config.dispatcher.dispatch === 'function') {
-        this._config.dispatcher.dispatch(telemetryObj);
+        await this._config.dispatcher.dispatch(telemetryObj);
         // Reset retry attempts on success
         this._retryAttempts = 0;
       } else {
@@ -132,7 +132,7 @@ export class TelemetrySyncManager {
 
     try {
       if (this._config.dispatcher && typeof this._config.dispatcher.dispatch === 'function') {
-        this._config.dispatcher.dispatch(telemetryObj);
+        await this._config.dispatcher.dispatch(telemetryObj);
         console.log('Retry successful');
       } else {
         await Dispatcher.dispatch(fullPath, telemetryObj, headers);
