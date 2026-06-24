@@ -21,20 +21,32 @@ export class TelemetrySyncManager {
     this._config = config;
   }
 
+  private _getBatchSize(): number {
+    const defaultBatchSize = 20;
+    const maxBatchSize = 1000;
+    const batchSize = Number(this._config.batchsize);
+
+    if (!Number.isFinite(batchSize) || batchSize < 1) {
+      return defaultBatchSize;
+    }
+
+    return Math.min(Math.floor(batchSize), maxBatchSize);
+  }
+
   public sendTelemetry(event: any) {
     const telemetryEvent = event.detail || event;
     this._teleData.push({ ...telemetryEvent });
 
     if (
       (telemetryEvent.eid && telemetryEvent.eid.toUpperCase() === 'END') ||
-      this._teleData.length >= (this._config.batchsize || 20)
+      this._teleData.length >= this._getBatchSize()
     ) {
       this.syncEvents();
     }
   }
 
   public async syncEvents() {
-    const batchSize = this._config.batchsize || 20;
+    const batchSize = this._getBatchSize();
 
     if (!this._teleData.length) {
       return;
