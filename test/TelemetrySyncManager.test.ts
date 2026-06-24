@@ -66,6 +66,26 @@ describe('TelemetrySyncManager', () => {
         expect(callArgs[1].events).toHaveLength(5);
     });
 
+    it('should normalize invalid negative batchsize before syncing events', async () => {
+        const mockDispatch = vi.mocked(Dispatcher.dispatch);
+        mockDispatch.mockResolvedValue({});
+
+        testConfig.batchsize = -1;
+        syncManager.updateConfig(testConfig);
+
+        syncManager.sendTelemetry({
+            eid: 'END',
+            edata: { type: 'app' },
+            context: {},
+        });
+
+        await flushPromises();
+
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch.mock.calls[0][1].events).toHaveLength(1);
+        expect(mockDispatch.mock.calls[0][1].events[0].eid).toBe('END');
+    });
+
     it('should sync events on END event regardless of batch size', async () => {
         const mockDispatch = vi.mocked(Dispatcher.dispatch);
         mockDispatch.mockResolvedValue({});
